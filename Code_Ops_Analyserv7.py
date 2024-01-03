@@ -14,14 +14,14 @@
 
 # %%
 # !pip install dash --upgrade
-# !pip install dash-bootstrap-components
+# !pip install dash-bootstrap-components 
 # !pip install openai
 # !pip install python-docx
 # !pip install pandas
 # !pip uninstall dash jupyter_dash
 # !pip install jupyter-dash
 # !pip install dash --upgrade
-# !pip install dash-bootstrap-components
+# !pip install dash-bootstrap-components 
 # !pip install flask_mail
 # !pip install flask flask-wtf flask-bootstrap email-validator
 # !pip install pytesseract
@@ -64,7 +64,7 @@ import random
 #from pysqlcipher3 import dbapi2 as sqlcipher
 # %%
 
-logging.basicConfig(filename='applogs.log',level=logging.ERROR)
+logging.basicConfig(filename='applogs.log',level=logging.DEBUG)
 # %% [markdown]
 # **SQL Query generation**
 
@@ -310,247 +310,6 @@ def get_functional_test_response(textarea):
     print(test_data.choices[0].text)
     return metadata.choices[0].text, test_result_action, test_result_expectation, test_data.choices[0].text
 
-# i have added a function for facebook 23-11-2023
-
-def get_functional_test_response_facebook(textarea):
-    print("in function")
-    metadata = openai.ChatCompletion.create(
-    model="gpt-3.5-turbo-16k",
-    messages=[
-        {
-        "role": "system",
-        "content": "You are a system. Your task is to generate functional test metadata for cross-application verifications involving the Facebook app. Only generate information at the specified points:\n1.Test Case Name:\n2.Test Objective:\n3.Preconditions:\n4.Inputs:"
-        },
-        {
-        "role": "user",
-        "content": "Create and Verify Check-in Post with Friends Audienc"
-        },
-        {
-        "role": "assistant",
-        "content": "1. Test Case Name: Create and Verify Check-in Post with Friends Audience\n2. Test Objective: To ensure that users can successfully create a check-in post on Facebook with the audience set to \"Friends\".\n3. Preconditions:\n   - User must have a Facebook account.\n   - User must have the Facebook app installed on their device.\n   - User must have friends added on Facebook.\n4. Inputs:\n   - User's current location.\n   - Text for the check-in post.\n   - Audience selection set to \"Friends\"."
-        },
-        {
-        "role": "user",
-        "content": "give me the test case for story checking in facebook"
-        },
-        {
-        "role": "assistant",
-        "content": "1. Test Case Name: Create and Verify Story Check-in on Facebook\n2. Test Objective: To ensure that users can successfully create a story check-in on Facebook.\n3. Preconditions:\n   - User must have a Facebook account.\n   - User must have the Facebook app installed on their device.\n   - User must have location services enabled on their device.\n4. Inputs:\n   - User's current location.\n   - Text or caption for the story check-in.\n   - Optional: Tag friends or add stickers to the story check-in.\n   - Optional: Add a photo or video to the story check-in."
-        },
-        {
-        "role": "user",
-        "content": f"{textarea}"
-        }
-    ],
-    temperature=0.22,
-    max_tokens=2048,
-    top_p=1,
-    frequency_penalty=0,
-    presence_penalty=0
-    )
-    print("metadata calculated")
-
-    test_result = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo-16k",
-        messages=[
-            {
-            "role": "system",
-            "content": "You are a system responsible for testing cross-application functionalities within the facebook app. Your task is to generate detailed test steps and expected results(expexted result laways in paragraph) for various scenarios involving facebook. "
-            },
-            {
-            "role": "user",
-            "content": "Create and Verify Check-in Post with Friends Audience and Tagged \nFriend"
-            },
-            {
-            "role": "assistant",
-            "content": "Test Steps: \n1. Launch the Facebook app on an iOS device.\n2. Log in with valid credentials.\n3. Navigate to the check-in feature or search bar.\n4. Enter the name of a specific location/restaurant.\n5. Select the desired location from the search results.\n6. Click on the \"Check-in\" button or similar option.\n7. Verify that the post audience is set as \"Friends\" by default.\n8. Set the post audience as \"Friends\" if not already selected.\n9. Add any additional content or tags if required.\n10. Tag a specific friend by typing their name preceded by the \"@\" symbol.\n11. Click on the \"Post\" button to create the check-in post.\n12. Verify that the check-in post is successfully created.\n13. Log out of the current user account.\n14. Log in with a Facebook account of the tagged friend on the Android App.\n15. Verify that the check-in post is also successfully created in tagged friend’s feeds.\n15. Navigate to the external user's profile or timeline.\n16. Verify that the check-in post is visible on the profile or timeline.\n18. Verify that the location displayed in the check-in post matches the selected location.\n20. Verify that only friends can be tagged.\n21. Log in with a different Facebook account on the web portal that is not friends with \nthe external user who created the check-in post.\n22. Navigate to the external user's profile or timeline.\n23. Verify that the check-in post is not visible on the profile or timeline.\n24. Verify that the tagged friend is not tagged in the check-in post.\nRepeat the above Cross-Application Verifications for the following workflows:\n- Android workflow with iOS App\n- Android workflow with Web\n- Web workflow with iOS App\n- Web workflow with Android App\nExpected Result: \nThe check-in post created using the iOS workflow is successfully visible and accurately \ndisplayed in the Android App and from the web for all the specified cross-application \nverifications. The post audience remains as \"Friends\" by default, and only friends of the \nexternal user can see the check-in post. The location displayed in the check-in post \nmatches the selected location. The tagged friend is correctly tagged in the check-in \npost and is visible to the tagged friend on their profile or timeline. The check-in post is \nalso successfully created in friends' feeds who were tagged. Only friends can be tagged \nin the check-in post, and it is not visible to non-friends"
-            },
-            {
-            "role": "user",
-            "content": " Previously checked in or tagged locations surfaces in the check-in \nworkflow if the Location was turned OFF for the App."
-            },
-            {
-            "role": "assistant",
-            "content": "Test Steps:\n1. Launch the Facebook app on an iOS device.\n2. Log in with valid credentials.\n3. Go to the device settings.\n4. Locate the Facebook app settings.\n5. Disable the location permission for the Facebook app.\n6. Return to the Facebook app.\n7. Navigate to the check-in feature or search bar.\n8. Enter the name of a specific location/restaurant.\n9. Select the desired location from the search results.\n10. Verify that previously checked-in or tagged locations are not surfaced in the check-in workflow.\n11. Enable the location permission for the Facebook app in the device settings.\n12. Return to the Facebook app.\n13. Navigate to the check-in feature or search bar.\n14. Enter the name of a specific location/restaurant.\n15. Select the desired location from the search results.\n16. Verify that previously checked-in or tagged locations are now surfaced in the check-in workflow.\n17. Disable the location permission for the Facebook app again in the device settings.\n18. Return to the Facebook app.\n19. Navigate to the check-in feature or search bar.\n20. Enter the name of a specific location/restaurant.\n21. Select the desired location from the search results.\n22. Verify that previously checked-in or tagged locations are not surfaced in the check-in workflow.\n23. Enable the location permission for the Facebook app in the device settings.\n24. Return to the Facebook app.\n25. Navigate to the check-in feature or search bar.\n26. Enter the name of a specific location/restaurant.\n27. Select the desired location from the search results.\n28. Verify that previously checked-in or tagged locations are now surfaced in the check-in workflow.\n\nExpected Result:\nWhen the location permission for the Facebook app is turned off, previously checked-in or tagged locations should not be surfaced in the check-in workflow. However, when the location permission is turned on, previously checked-in or tagged locations should be surfaced in the check-in workflow. Disabling and enabling the location permission should consistently affect the availability of previously checked-in or tagged locations in the check-in workflow."
-            },
-            {
-            "role": "user",
-            "content": f"{textarea}"
-            }
-        ],
-        temperature=0.11,
-        max_tokens=5460,
-        top_p=1,
-        frequency_penalty=0,
-        presence_penalty=0
-    )
-    print("test_result calculated")
-    
-    test_data = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo-16k",
-        messages=[
-            {
-            "role": "system",
-            "content": "You are a system tasked with generating functional test data for cross-application verifications involving the Facebook app on iOS, Android, and the web. If you received any prompts take the test case from given prompt and generate test data only for the following points:\n\nUser Details:\na. Username:\nb. Password:\n\nPost Details:\na. Post Type:\nb. Location/Restaurant:\nc. Audience:\nd. Post Content:\n\nPlatforms:\"\n"
-            },
-            {
-            "role": "user",
-            "content": "Create and Verify Check-in Post with Friends Audienc"
-            },
-            {
-            "role": "assistant",
-            "content": "1. User Details:\n  a. username: testuser123\n  b. password: testpass123\n\n2. Post Details:\n  a. Post type: Check-in\n  b. Location/Restaurant: \"The Best Cafe\"\n  c. Audience: Friends\n  d. Post Content: \"Having a great time at The Best Cafe with friends!\"\n\n3. Platforms:\n  - iOS app\n  - Android app\n  - Web app"
-            },
-            {
-            "role": "user",
-            "content": "give me the test case for story checking in facebook"
-            },
-            {
-            "role": "assistant",
-            "content": "1. User Details:\n  a. username: testuser456\n  b. password: testpass456\n\n2. Post Details:\n  a. Post type: Story\n  b. Location/Restaurant: \"The Cozy Restaurant\"\n  c. Audience: Public\n  d. Post Content: \"Checked in at The Cozy Restaurant, enjoying a delicious meal!\"\n\n3. Platforms:\n  - iOS app\n  - Android app\n  - Web app"
-            },
-            {
-            "role": "user",
-            "content": f"{textarea}"
-            }
-        ],
-        temperature=0.22,
-        max_tokens=2048,
-        top_p=1,
-        frequency_penalty=0,
-        presence_penalty=0
-        )
-    print("test_data calculated")
-    metadata = metadata['choices'][0]['message']['content']
-    test_result = test_result['choices'][0]['message']['content']
-    test_data = test_data['choices'][0]['message']['content']
-    
-    print(metadata)
-    print(test_result)
-    print(test_data)
-    return metadata,test_data,test_result
-
-def get_functional_test_response_instagram(textarea):
-    print("in function")
-    metadata = openai.ChatCompletion.create(
-    model="gpt-3.5-turbo-16k",
-    messages=[
-    {
-      "role": "system",
-      "content": "You are a system. Your task is to generate functional test metadata for cross-application verifications involving the Instagram app. Only generate information at the specified points:\n1.Test Case Name:\n2.Test Objective:\n3.Preconditions:\n4.Inputs:"
-    },
-    {
-      "role": "user",
-      "content": "Create and Verify Check-in Post with Friends Audienc"
-    },
-    {
-      "role": "assistant",
-      "content": "1. Test Case Name: Create and Verify Check-in Post with Friends Audience\n2. Test Objective: To ensure that users can successfully create a check-in post on Instagram with the audience set to friends only.\n3. Preconditions:\n   - User must have a valid Instagram account.\n   - User must have friends added on their Instagram account.\n4. Inputs:\n   - Location: [Specify the location where the check-in post will be created]\n   - Caption: [Specify the caption for the check-in post]\n   - Audience: Friends Only"
-    },
-    {
-      "role": "user",
-      "content": "give me the  test case for story checking in istagram"
-    },
-    {
-      "role": "assistant",
-      "content": "1. Test Case Name: Verify Story Check-in on Instagram\n2. Test Objective: To ensure that users can successfully check-in to a location and share it as a story on Instagram.\n3. Preconditions:\n   - User must have a valid Instagram account.\n   - User must have location services enabled on their device.\n4. Inputs:\n   - Location: [Specify the location where the check-in will be made]\n   - Caption: [Specify the caption for the story check-in]\n   - Media: [Specify any media (photo or video) to be attached to the story check-in]"
-    },
-    {
-      "role": "user",
-       "content": f"{textarea}"
-    }
-    ],
-    temperature=0.22,
-    max_tokens=2048,
-    top_p=1,
-    frequency_penalty=0,
-    presence_penalty=0
-    )
-    print("meatadata calculated")
-    time.sleep(30)
-
-    test_result = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo-16k",
-        messages=[
-            {
-            "role": "system",
-            "content": "You are a system responsible for testing cross-application functionalities within the Instagram app. Your task is to generate all the test steps and expected results( expected result always in paragraph) for various scenarios involving Instagram. "
-            },
-            {
-            "role": "user",
-            "content": "Create and Verify Check-in Post with Friends Audience and Tagged \nFriend"
-            },
-            {
-            "role": "assistant",
-            "content": "Certainly! Here are the additional cross-application verifications and modified tagging instructions:\n\n**Test Steps:**\n1. Launch the Instagram app.\n2. Log in to your account.\n3. Tap on the \"+\" button at the bottom center of the screen to create a new post.\n4. Tap on the \"Check-in\" option from the available post types.\n5. Allow Instagram to access your location if prompted.\n6. Select the location you want to check-in to by searching or browsing through the available options.\n7. Tap on the \"Next\" button at the top right corner of the screen.\n8. Write a caption for your check-in post in the \"Write a caption...\" field.\n9. Tap on the \"Tag People\" option below the caption field, and use the \"@\" symbol to tag a friend.\n10. Search and select the friend you want to tag in the check-in post.\n11. Tap on the \"Done\" button at the top right corner of the screen.\n12. Tap on the \"Audience\" option below the caption field.\n13. Select the \"Friends\" option from the available audience options.\n14. Tap on the \"Share\" button at the top right corner of the screen.\n15. Wait for the check-in post to be uploaded and published.\n16. Verify that the check-in post is visible on your profile.\n17. Verify that the check-in post is visible in your friend's feed.\n18. Verify that the tagged friend is mentioned in the check-in post.\n19. Verify that the check-in post is visible to your friends only and not to the public.\n\nRepeat the above Cross-Application Verifications for the following workflows:**\n- Android workflow with iOS App\n- Android workflow with Web\n- Web workflow with iOS App\n- Web workflow with Android App\n\n**Expected Result:**\nThe check-in post created using the provided steps is successfully visible on your Instagram profile. It is also visible in your friend's feed, and the tagged friend is correctly mentioned in the check-in post. The post is set to be visible to your friends only, ensuring it is not accessible to the public. The location and caption are accurately displayed in cross-application verifications, confirming the consistent functionality across different platforms."
-            },
-            {
-            "role": "user",
-            "content": " Previously checked in or tagged locations surfaces in the check-in \nworkflow if the Location was turned OFF for the App"
-            },
-            {
-            "role": "assistant",
-            "content": "**Test Steps:**\n1. Launch the Instagram app.\n2. Log in to your account.\n3. Tap on the \"+\" button at the bottom center of the screen to create a new post.\n4. Tap on the \"Check-in\" option from the available post types.\n5. If prompted, allow Instagram to access your location.\n6. If the location was previously turned off for the app, ensure that it is still turned off.\n7. Select the location you want to check-in to by searching or browsing through the available options.\n8. Tap on the \"Next\" button at the top right corner of the screen.\n9. Write a caption for your check-in post in the \"Write a caption...\" field.\n10. Tap on the \"Tag People\" option below the caption field, and use the \"@\" symbol to tag a friend.\n11. Search and select the friend you want to tag in the check-in post.\n12. Tap on the \"Done\" button at the top right corner of the screen.\n13. Tap on the \"Audience\" option below the caption field.\n14. Select the \"Friends\" option from the available audience options.\n15. Tap on the \"Share\" button at the top right corner of the screen.\n16. Wait for the check-in post to be uploaded and published.\n17. Verify that the check-in post is visible on your profile.\n18. Verify that the check-in post is visible in your friend's feed.\n19. Verify that the tagged friend is mentioned in the check-in post.\n20. Verify that the check-in post is visible to your friends only and not to the public.\n21. Repeat the above steps with the location turned on for the app.\n\n**Expected Result:**\nWhen the location is turned off for the Instagram app, the previously checked-in or tagged locations should not surface in the check-in workflow. The user should be able to manually search and select a location for the check-in post. The check-in post should still be visible on the user's profile, in their friend's feed, and the tagged friend should be mentioned in the post. The post should be set to be visible to friends only. When the location is turned on for the app, the previously checked-in or tagged locations should be available for selection in the check-in workflow."
-            },
-            {
-            "role": "user",
-            "content": f"{textarea}"
-        }
-        ],
-        temperature=0.13,
-        max_tokens=5119,
-        top_p=1,
-        frequency_penalty=0,
-        presence_penalty=0
-    )
-    print("test_result calculated")
-    time.sleep(30)
-
-    test_data = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo-16k",
-         messages=[
-            {
-            "role": "system",
-            "content": "You are a system tasked with generating functional test data for cross-application verifications involving the instagram app on iOS, Android, and the web. If you received any prompts take the test case from given prompt and generate test data only for the following points:\n\nUser Details:\na. Username:\nb. Password:\n\nPost Details:\na. Post Type:\nb. Location/Restaurant:\nc. Audience:\nd. Post Content:\n\nPlatforms:\"\n"
-            },
-            {
-            "role": "user",
-            "content": "Create and Verify Check-in Post with Friends Audienc"
-            },
-            {
-            "role": "assistant",
-            "content": "User Details:\na. Username: testuser\nb. Password: Test1234\n\nPost Details:\na. Post Type: Check-in\nb. Location/Restaurant: Starbucks\nc. Audience: Friends\nd. Post Content: \"Having a great time at Starbucks with friends!\"\n\nPlatforms:\n- iOS\n- Android\n- Web"
-            },
-            {
-            "role": "user",
-            "content": "give me the  test case for story checking in istagram"
-            },
-            {
-            "role": "assistant",
-            "content": "User Details:\na. Username: testuser\nb. Password: Test1234\n\nPost Details:\na. Post Type: Story\nb. Location/Restaurant: Starbucks\nc. Audience: Public\nd. Post Content: \"Checking in at Starbucks for a quick coffee break!\"\n\nPlatforms:\n- iOS\n- Android\n- Web"
-            },
-            {
-                "role": "user",
-                "content": f"{textarea}"
-            }
-        ],
-        temperature=0.22,
-        max_tokens=2048,
-        top_p=1,
-        frequency_penalty=0,
-        presence_penalty=0
-        )
-    print("test_data calculated")
-    metadata = metadata['choices'][0]['message']['content']
-    test_result = test_result['choices'][0]['message']['content']
-    test_data = test_data['choices'][0]['message']['content']
-    
-    print(metadata)
-    print(test_result)
-    print(test_data)
-    return metadata,test_data,test_result
-
-
 
 def get_test_case_from_openai(code_input, action_selected, code_language):
     response = openai.Completion.create(
@@ -565,32 +324,6 @@ def get_test_case_from_openai(code_input, action_selected, code_language):
     )
 
     return response.choices[0].text
-
-def sqloptimizer(textarea):
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo-16k",
-        messages=[
-            {
-                "role": "user",
-                "content": "SELECT customer.name, order.order_date, product.name, quantity FROM customer JOIN order ON customer.id = order.customer_id JOIN product ON order.product_id = product.id WHERE order.order_date BETWEEN '2023-01-01' AND '2023-12-31' AND product.category = 'Electronics' AND quantity > 10 2 Questions, 1. is there a optimization problem exists, if yes what are those ? 2 .now following the above best practices , optimize this query "
-            },
-            {
-                "role": "assistant",
-                "content": "1. Potential Optimization Issues\na. Indexing: If the columns used in the JOIN and WHERE clauses (customer.id, order.customer_id, order.product_id, product.id, order.order_date, product.category, and quantity) are not indexed, the query may be slower, especially if the tables have a large number of records.\nDatabase Statistics: If the database statistics are outdated, the database might not choose the best execution plan for this query. Keeping statistics up to date helps in optimizing the performance.\nSelecting Necessary Columns: The query seems to be selecting only the necessary columns, which is good. This aspect doesn't require optimization.\nData Segmentation and Partitioning: If the tables are very large, segmenting data using partitioning can be considered to speed up the query, especially focusing on columns used in the WHERE clause, like order_date and category.\n\n2. Optimized Query Following Best Practices\n\nFirst, let's make sure that the necessary indexes are created on the relevant columns to optimize the JOIN and WHERE operations.\n\nCREATE INDEX idx_customer_id ON customer (id);\nCREATE INDEX idx_order_customer_id ON order (customer_id);\nCREATE INDEX idx_order_product_id ON order (product_id, order_date, quantity);\nCREATE INDEX idx_product_id_category ON product (id, category);\nSELECT \n    c.name, \n    o.order_date, \n    p.name, \n    o.quantity \nFROM \n    customer c\nJOIN \n    order o ON c.id = o.customer_id\nJOIN \n    product p ON o.product_id = p.id\nWHERE \n    o.order_date BETWEEN '2023-01-01' AND '2023-12-31'\n    AND p.category = 'Electronics'\n    AND o.quantity > 10;\n\nExplanation:\n\ni. Added indexes to potentially enhance the performance of the JOIN and WHERE operations.\nii. Used aliases for table names to make the query more readable and potentially slightly faster, as it reduces the amount of data that needs to be parsed."
-            },
-            {
-                "role": "user",
-                "content": f"{textarea}\n\n2 Questions, 1. is there a optimization problem exists, if yes what are those ? 2 .now following the above best practices , optimize this query "
-            }
-        ],
-        temperature=0,
-        max_tokens=1558,
-        top_p=1,
-        frequency_penalty=0,
-        presence_penalty=0
-    )
-
-    return response.choices[0].message.content
 
 # %%
 def run_preset_None(query):
@@ -632,12 +365,8 @@ app.layout = html.Div([
     html.Div(id='page-content'),
 ])
 
-app.title = "Synapt-GDK"
-#openai.api_key = "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"
-with open('config.json','r') as config:
-    file = json.load(config)
-    openai.api_key = file['openai_key']
-    
+app.title = "Synapt XAI"
+
 user_email_address = ""
 user_email_password = ""
 CLIENT_SECRET_FILE = 'SecretKey.json'
@@ -650,8 +379,8 @@ def send_email(body):
     global user_email_address
     global user_email_password
     sender_email = user_email_address
-    receiver_email = 'amitkumar.n@prodapt.com'
-    # receiver_email = 'sparshsaxena.a@prodapt.com'
+    # receiver_email = 'amitkumar.n@prodapt.com'
+    receiver_email = 'sparshsaxena.a@prodapt.com'
     subject = 'Code Ops Analyser System'
     body = body
     msg = MIMEMultipart()
@@ -770,274 +499,133 @@ home_layout = html.Div(
         dbc.Container(
             className="pt-5",
             children=[
-                html.H1("Synapt-GDK", className="text-center"),
-                # html.Div([
-                #     html.Img(src='/assets/MicrosoftTeams-image.png', style={'width': '50px', 'height': '50px', 'float': 'left'}),
-                #     html.Div("Desktop Edition (Beta)", style={"color": "red", "font-weight": "bold", "margin-left": "60px"}),
-                # ], style={"position": "absolute", "top": 10, "right": 0}),
-
-                html.Div([
-                    html.Img(src='/assets/Prodapt-Logo.png', style={'width': '180px', 'height': 'auto', 'float': 'left'}),
-                    html.Div("Desktop Edition (Beta)", style={"color": "red", "font-weight": "bold", "display": "inline-block", "float":"right"}),
-                ], style={"position": "absolute", "top": 10, "right": 1, "width": "100%", "text-align": "right"}),
-
-                # html.P(id="email-address-output", style={"position": "absolute", "top": 20, "right": 0}),
-                # html.P(id="user-password-output", style={"position": "absolute", "top": 40, "right": 0}),
-                # html.P(id="api-key-output", style={"position": "absolute", "top": 60, "right": 0}),
+                html.H1("Synapt XAI", className="text-center"),
+                html.Div("Beta version (v0.7_06_06_2023)",style={"position": "absolute", "top": 0, "right": 0}),
+                html.P(id = "email-address-output",style = {"position": "absolute", "top": 20, "right": 0}),
+                html.P(id = 'user-password-output',style={"position": "absolute", "top": 40, "right": 0}),
+                html.P(id = 'api-key-output',style={"position": "absolute", "top": 60, "right": 0}),
                 html.Br(),
                 html.Br(),
                 html.Br(),
-                dbc.Row(
-                    [
-                        dbc.Col(
-                            html.I(
-                                className="fas fa-file-invoice fa-lg",
-                                style={
-                                    "font-size": "48px",
-                                    "width": "100%",
-                                    "height": "100px",
-                                    "line-height": "100px",
-                                    "text-align": "center",
-                                },
-                            )
-                        ),
-                        dbc.Col(
-                            html.I(
-                                className="fas fa-file-code fa-lg",
-                                style={
-                                    "font-size": "48px",
-                                    "width": "100%",
-                                    "height": "100px",
-                                    "line-height": "100px",
-                                    "text-align": "center",
-                                },
-                            )
-                        ),
-                        dbc.Col(
-                            html.I(
-                                className="fas fa-code fa-lg",
-                                style={
-                                    "font-size": "48px",
-                                    "width": "100%",
-                                    "height": "100px",
-                                    "line-height": "100px",
-                                    "text-align": "center",
-                                },
-                            )
-                        ),
-                    ]
-                ),
+                html.Br(),
+                html.Br(),
+                html.Br(),
+                dbc.Row([
+                    dbc.Col(
+                        html.I(className='fas fa-bug fa-lg', style={"font-size": "48px","width": "100%","height": "100px","line-height": "100px","text-align":"center"})
+                    ),
+                    dbc.Col(
+                        html.I(className='fas fa-file-code fa-lg',style={"font-size": "48px","width": "100%","height": "100px","line-height": "100px","text-align":"center"})
+                    ),
+                    dbc.Col(
+                        html.I(className='fas fa-code fa-lg',style={"font-size": "48px","width": "100%","height": "100px","line-height": "100px","text-align":"center"})
+                    )
+                ]),
                 dbc.Row(
                     [
                         dbc.Col(
                             dbc.Button(
-                                "Doc Generation",
+                                'Fault Lens',
                                 color="primary",
-                                style={"width": "100%", "font-size": "27px"},
-                                href="/docgeneration",
-                            )
+                                style={"width": "100%","font-size":"27px"},
+                                href="/fault_analysis"
+                            ),
+                            #width={"size": 2, "offset": 2},
                         ),
                         dbc.Col(
                             dbc.Button(
-                                "Code Analysis",
+                                'Code Analysis',
                                 color="primary",
-                                style={"width": "100%", "font-size": "27px"},
-                                href="/codeanalysis",
-                            )
+                                style={"width": "100%","font-size":"27px"},
+                                href="/codeanalysis"
+                            ),
+                            #width={"size": 2, "offset": 0},
                         ),
                         dbc.Col(
                             dbc.Button(
-                                "Code Generation",
+                                'Code Generation',
                                 color="primary",
-                                style={"width": "100%", "font-size": "27px"},
-                                href="/codegeneration",
-                            )
+                                style={"width": "100%","font-size":"27px"},
+                                href="/codegeneration"
+                            ),
+                            #width={"size": 2, "offset": 0},
                         ),
                     ]
                 ),
                 html.Br(),
                 html.Br(),
                 html.Br(),
-                dbc.Row(
-                    [
-                        dbc.Col(
-                            html.I(
-                                className="fas fa-bug fa-lg",
-                                style={
-                                    "font-size": "48px",
-                                    "width": "100%",
-                                    "height": "100px",
-                                    "line-height": "100px",
-                                    "text-align": "center",
-                                },
-                            )
-                        ),
-                        dbc.Col(
-                            html.I(
-                                className="fas fa-language fa-lg",
-                                style={
-                                    "font-size": "48px",
-                                    "width": "100%",
-                                    "height": "100px",
-                                    "line-height": "100px",
-                                    "text-align": "center",
-                                    "color": "white",
-                                },
-                            )
-                        ),
-                        dbc.Col(
-                            html.I(
-                                className="fas fa-bug fa-lg",
-                                style={
-                                    "font-size": "48px",
-                                    "width": "100%",
-                                    "height": "100px",
-                                    "line-height": "100px",
-                                    "text-align": "center",
-                                },
-                            )
-                        ),
-                    ]
-                ),
+                dbc.Row([
+                    dbc.Col(
+                        html.I(className='fas fa-file-invoice fa-lg', style={"font-size": "48px","width": "100%","height": "100px","line-height": "100px","text-align":"center"})
+                    ),
+                    dbc.Col(
+                        html.I(className='fas fa-language fa-lg',style={"font-size": "48px","width": "100%","height": "100px","line-height": "100px","text-align":"center",'color':'white'})
+                    ),
+                    dbc.Col(
+                        html.I(className='fas fa-user fa-lg',style={"font-size": "48px","width": "100%","height": "100px","line-height": "100px","text-align":"center"})
+                    )
+                ]),
                 dbc.Row(
                     [
                         dbc.Col(
                             dbc.Button(
-                                "Test Scenario Generation",
+                                'Doc Generation',
                                 color="primary",
-                                style={"width": "100%", "font-size": "27px"},
-                                href="/test-scenario-generation",
-                            )
+                                style={"width": "100%","font-size":"27px"},
+                                href="/docgeneration"
+                            ),
+                            # width={"size": 4},
                         ),
                         dbc.Col(
                             dbc.Button(
-                                "Auto Test Generator",
+                                'Auto Test Generator',
                                 color="primary",
-                                style={"width": "100%", "font-size": "27px"},
-                                href="/testgenius",
-                            )
+                                style={"width": "100%","font-size":"27px"},
+                                href="/testgenius"
+                            ),
+                            #width={"size": 2, "offset": 0},
                         ),
                         dbc.Col(
                             dbc.Button(
-                                "Fault Lens",
+                                'Usage Insights',
                                 color="primary",
-                                style={"width": "100%", "font-size": "27px"},
-                                href="/fault_analysis",
-                            )
+                                style={"width": "100%","font-size":"27px"},
+                                href="/user_stats"
+                            ),
+                            # width={"size": 4},
                         ),
                     ]
                 ),
                 html.Br(),
                 html.Br(),
-                html.Br(),
-                dbc.Row(
-                    [
-                        dbc.Col(
-                            html.I(
-                                className="fas fa-file-code fa-lg",
-                                style={
-                                    "font-size": "48px",
-                                    "width": "100%",
-                                    "height": "100px",
-                                    "line-height": "100px",
-                                    "text-align": "center",
-                                },
-                            )
-                        ),
-                        dbc.Col(
-                            html.I(
-                                className="fas fa-user fa-lg",
-                                style={
-                                    "font-size": "48px",
-                                    "width": "100%",
-                                    "height": "100px",
-                                    "line-height": "100px",
-                                    "text-align": "center",
-                                },
-                            )
-                        ),
-                    ]
-                ),
-                dbc.Row(
-                    [
-                        dbc.Col(
-                            dbc.Button(
-                                "RCA",
-                                color="primary",
-                                style={"width": "100%", "font-size": "27px"},
-                                href="/api-analysis",
-                            )
-                        ),
-                        dbc.Col(
-                            dbc.Button(
-                                "Usage Insights",
-                                color="primary",
-                                style={"width": "100%", "font-size": "27px"},
-                                href="/user_stats",
-                            )
-                        ),
-                    ]
-                ),
-                html.Br(),
-                html.Br(),
-                # dbc.Row(
-                #     [
-                #         dbc.Col(
-                #             dbc.Input(
-                #                 type="text",
-                #                 id="api-key-input",
-                #                 placeholder="Enter your OpenAI API key here...",
-                #                 style={"margin": "16px 0px 0px 0px"},
-                #             ),
-                #             width=4,
-                #         ),
-                #         dbc.Col(
-                #             dbc.Input(
-                #                 type="text",
-                #                 id="email-address-input",
-                #                 placeholder="Enter your email address",
-                #                 style={"margin": "16px 0px 0px 0px"},
-                #             ),
-                #             width=4,
-                #         ),
-                #         dbc.Col(
-                #             dbc.Input(
-                #                 type="password",
-                #                 id="user-password-input",
-                #                 placeholder="Enter your email password...",
-                #                 style={"margin": "16px 0px 0px 0px"},
-                #             ),
-                #             width=3,
-                #         ),
-                #         dbc.Col(
-                #             dbc.Button(
-                #                 "Submit",
-                #                 id="user-credentials-submit-button",
-                #                 color="primary",
-                #                 className="mt-3",
-                #             ),
-                #             width=1,
-                #         ),
-                #     ]
-                # ),
-                # dbc.Row(
-                #     [
-                #         dbc.Col(
-                #             html.A("Find your API Key here", href="https://platform.openai.com/account/api-keys", target="_blank"),
-                #             width=3,
-                #         ),
-                #         dbc.Col(width=2),
-                #         dbc.Col(
-                #             html.P(
-                #                 "Enter only the fields which you want to update (check top right corner for info.)",
-                #                 style={"color": "#666666", "margin": "0px 0px 0px 109px"},
-                #             )
-                #         ),
-                #     ],
-                #     style={"align-content": "center"},
-                # ),
+                dbc.Row([
+                    dbc.Col([
+                        dbc.Input(type="text",id="api-key-input",placeholder="Enter your OpenAI API key here...",style={"margin":"16px 0px 0px 0px"})
+                    ],width=4),
+                    dbc.Col([
+                        dbc.Input(type="text",id="email-address-input",placeholder="Enter your email address",style={"margin":"16px 0px 0px 0px"})
+                    ],width=4),
+                    dbc.Col([
+                        dbc.Input(type="password",id="user-password-input",placeholder="Enter your email password...",style={"margin":"16px 0px 0px 0px"})
+                    ],width=3),
+                    dbc.Col([
+                        dbc.Button("Submit",id="user-credentials-submit-button",color="primary",className="mt-3")
+                    ],width=1)
+                ]),
+                dbc.Row([
+                    dbc.Col([
+                        html.A('Find your API Key here',href='https://platform.openai.com/account/api-keys',target="_blank")
+                    ],width=3),
+                    dbc.Col([
+    
+                    ],width= 2),
+                    dbc.Col([
+                        html.P("Enter only the fields which you want to update (check top right corner for info.)",style = {'color':'#666666','margin':'0px 0px 0px 109px'})
+                    ])
+                ],style={'align-content':'center'}),
             ],
-        ),
+        )
     ]
 )
 
@@ -1076,9 +664,9 @@ def insert_user_credentials(new_email_address, new_user_password, new_api_key):
     conn.close()
 
 @app.callback(
-    # Output('api-key-output','children'),
-    # Output('email-address-output','children'),
-    # Output('user-password-output','children'),
+    Output('api-key-output','children'),
+    Output('email-address-output','children'),
+    Output('user-password-output','children'),
     Output('api-key-input','value'),
     Output('email-address-input','value'),
     Output('user-password-input','value'),
@@ -1129,9 +717,7 @@ def show_input(n_clicks, new_api_key, new_email_address, new_user_password):
         user_password_status = "Password Set"
     openai.api_key = user_apikey
     
-    # return "Your API key- "+mask_api_key(user_apikey), "Email id "+ user_email_status, user_password_status,'','',''
-
-
+    return "Your API key- "+mask_api_key(user_apikey), "Email id "+ user_email_status, user_password_status,'','',''
 
 # %% [markdown]
 # **FAULT ANALYSIS PAGE LAYOUT AND FUNCTIONALITY**
@@ -1147,10 +733,7 @@ new_systems_involved = [
 ]
 
 fault_analysis_new_layout = html.Div([
-    dbc.Navbar(children=[
-        dbc.NavItem(html.A(html.I(className="fas fa-home"), href="/",style={"margin":"0px 0px 0px 20px","font-size":"30px","color":"white"})),
-        dbc.NavbarBrand("Fault Lens", className="mx-auto",style={"text-align":"center","font-size":"35px","font-weight":"bold"}), 
-        dbc.NavItem("Synapt-GDK", style={"margin-right": "20px", "color":"red","font-weight":"bold"})],color="dark",dark=True),
+    dbc.Navbar(children=[dbc.NavItem(html.A(html.I(className="fas fa-home"), href="/",style={"margin":"0px 0px 0px 20px","font-size":"30px","color":"white"})),dbc.NavbarBrand("Fault Lens", className="mx-auto",style={"text-align":"center","font-size":"35px","font-weight":"bold"})],color="dark",dark=True),
     dbc.Row([
         dbc.Col([
             dcc.Dropdown(
@@ -1299,10 +882,7 @@ systems_involved_label = {
 
 
 fault_analysis_page = html.Div([
-    dbc.Navbar(children=[
-        dbc.NavItem(html.A(html.I(className="fas fa-home"), href="/",style={"margin":"0px 0px 0px 20px","font-size":"30px","color":"white"})),
-        dbc.NavbarBrand("Fault Lens", className="mx-auto",style={"text-align":"center","font-size":"35px","font-weight":"bold"}),
-        dbc.NavItem("Synapt-GDK", style={"margin-right": "20px", "color":"red","font-weight":"bold"})],color="dark",dark=True),
+    dbc.Navbar(children=[dbc.NavItem(html.A(html.I(className="fas fa-home"), href="/",style={"margin":"0px 0px 0px 20px","font-size":"30px","color":"white"})),dbc.NavbarBrand("Fault Lens", className="mx-auto",style={"text-align":"center","font-size":"35px","font-weight":"bold"})],color="dark",dark=True),
 
     # dbc.Row([
     #     dbc.NavItem(html.A(html.I(className="fas fa-home"), href="/",style={"font-size": "20px","width": "100%","height": "100%","text-align":"center"})),
@@ -1351,12 +931,11 @@ fault_analysis_page = html.Div([
         dbc.Col([
             html.H3("2. 📷Image Text", style={'font-size': '30px'}),
             dbc.Textarea(id='fault_analysis-ocr-text', placeholder='Nothing Uploaded...', style={'height': '150px', 'resize': 'none','background-color': '#444444', 'color': 'white'})
-        ], width=6),
-        #made a chnge by rishu 23-11-2023
-        # dbc.Col([
-        #     html.H3("3. 💭Prompt Selected", style={'font-size': '30px'}),
-        #     dbc.Textarea(id='fault-analysis-prompt-box',placeholder='Prompt appears here as you select...', style={'height': '150px', 'resize': 'none','word-wrap':'break-word', 'overflow-wrap':'break-word','background-color': '#444444', 'color': 'white'},readOnly=True)
-        # ], width=3),
+        ], width=3),
+        dbc.Col([
+            html.H3("3. 💭Prompt Selected", style={'font-size': '30px'}),
+            dbc.Textarea(id='fault-analysis-prompt-box',placeholder='Prompt appears here as you select...', style={'height': '150px', 'resize': 'none','word-wrap':'break-word', 'overflow-wrap':'break-word','background-color': '#444444', 'color': 'white'},readOnly=True)
+        ], width=3),
         #placeholder='Prompt appears here as you select...'
         dbc.Col([
             dbc.Button([html.I(' Submit',className='fas fa-paper-plane')], color='primary', id = "fault-analysis-submit", style={'justify-content': 'center','width':'120px','margin': '47px 0px 0px 0px'}),
@@ -1366,14 +945,6 @@ fault_analysis_page = html.Div([
     ], style={'margin': '20px 0px'}),
     # html.Div(id = 'fault-analysis-email-recipients',children=[]),
 
-    #made a change by rishu 23-11-2023
-    dbc.Row([
-    dbc.Col([
-            html.H3("3. 💭Prompt Selected", style={'font-size': '30px'},hidden=True),
-            dbc.Textarea(id='fault-analysis-prompt-box',placeholder='Prompt appears here as you select...', style={'height': '150px', 'resize': 'none','word-wrap':'break-word', 'overflow-wrap':'break-word','background-color': '#444444', 'color': 'white'},readOnly=True, hidden=True)
-        ], width=3),
-    ], style={'margin': '20px 0px'}),
-    
     dbc.Row([
         dbc.Col([
             html.H3("Result:", style={'font-size': '30px'}),
@@ -1637,15 +1208,11 @@ code_analysis_action_dropdown_options = [
     {'label':'Assess code modularity','value':'Assess code modularity'},
     {'label':'Analyze code complexity','value':'Analyze code complexity'},
     {'label':'Review error handling and logging','value':'Review error handling and logging'},
-    {'label':'Identify error in code','value':'Identify error in code'},
-    {'label':'SQL Query Optimization','value':'SQL Query Optimization'}
+    {'label':'Identify error in code','value':'Identify error in code'}
 ]
 
 code_analysis_layout = html.Div([
-        dbc.Navbar(children=[
-            dbc.NavItem(html.A(html.I(className="fas fa-home"), href="/",style={"margin":"0px 0px 0px 20px","font-size":"30px","color":"white"})),
-            dbc.NavbarBrand("Code Analysis", className="mx-auto",style={"text-align":"center","font-size":"35px","font-weight":"bold"}),
-            dbc.NavItem("Synapt-GDK", style={"margin-right": "20px", "color":"red","font-weight":"bold"})],color="dark",dark=True),
+        dbc.Navbar(children=[dbc.NavItem(html.A(html.I(className="fas fa-home"), href="/",style={"margin":"0px 0px 0px 20px","font-size":"30px","color":"white"})),dbc.NavbarBrand("Code Analysis", className="mx-auto",style={"text-align":"center","font-size":"35px","font-weight":"bold"})],color="dark",dark=True),
         dbc.Row([
             dbc.Col([
                 dbc.Select(
@@ -1744,10 +1311,7 @@ def generate_code_analysis_output(fullscreen, action_selected, code_language,pro
     start_time = time.time()
     try:
         fullscreen = True
-        if action_selected == "SQL Query Optimization":
-            result = sqloptimizer(textarea)
-        else:
-            result = globals()['run_preset_11'](select_prompt_from_code_analysis_dropdown(action_selected, 1)+" step by step\n"+textarea+" Also provide the corrected code even if it is correct")
+        result = globals()['run_preset_11'](select_prompt_from_code_analysis_dropdown(action_selected, 1)+" step by step\n"+textarea+" Also provide the corrected code even if it is correct")
         fullscreen = False
     except Exception as e:
         logging.error(f"Error Occured on calling function 'run_preset_11' \n{str(e)}")
@@ -1838,10 +1402,7 @@ doc_generation_output_required = [
 ]
 
 docGeneration_Layout = html.Div([
-    dbc.Navbar(children=[
-        dbc.NavItem(html.A(html.I(className="fas fa-home"), href="/",style={"margin":"0px 0px 0px 20px","font-size":"30px","color":"white"})),
-        dbc.NavbarBrand("Doc Generation", className="mx-auto",style={"text-align":"center","font-size":"35px","font-weight":"bold"}),
-        dbc.NavItem("Synapt-GDK", style={"margin-right": "20px", "color":"red","font-weight":"bold"})],color="dark",dark=True),
+    dbc.Navbar(children=[dbc.NavItem(html.A(html.I(className="fas fa-home"), href="/",style={"margin":"0px 0px 0px 20px","font-size":"30px","color":"white"})),dbc.NavbarBrand("Doc Generation", className="mx-auto",style={"text-align":"center","font-size":"35px","font-weight":"bold"})],color="dark",dark=True),
     dbc.Row([
         dbc.Col([
             dbc.Select(
@@ -1989,10 +1550,7 @@ code_generation_action_dropdown = [
     {'label':'Generate SQL Query','value':'Generate SQL Query'}
 ]
 code_generation_layout = html.Div([
-    dbc.Navbar(children=[
-        dbc.NavItem(html.A(html.I(className="fas fa-home"), href="/",style={"margin":"0px 0px 0px 20px","font-size":"30px","color":"white"})),
-        dbc.NavbarBrand("Code Generation", className="mx-auto",style={"text-align":"center","font-size":"35px","font-weight":"bold"}),
-        dbc.NavItem("Synapt-GDK", style={"margin-right": "20px", "color":"red","font-weight":"bold"})],color="dark",dark=True),
+    dbc.Navbar(children=[dbc.NavItem(html.A(html.I(className="fas fa-home"), href="/",style={"margin":"0px 0px 0px 20px","font-size":"30px","color":"white"})),dbc.NavbarBrand("Code Generation", className="mx-auto",style={"text-align":"center","font-size":"35px","font-weight":"bold"})],color="dark",dark=True),
     dbc.Row([
         dbc.Col([
             dbc.Select(
@@ -2122,17 +1680,11 @@ def generate_code_generation_report(preset, language, textarea, result, n_clicks
 
 test_genius_dropdown_option = [
     {'label':'Generate unit test cases','value':'Generate unit test cases'},
-    {'label':'Generate functional test cases','value':'Generate functional test cases'},
-    # made changse by rishu (23-11-2023)
-    {'label':'Generate functional test cases for facebook','value':'Generate functional test cases for facebook'},
-    {'label':'Generate functional test cases for instagram','value':'Generate functional test cases for instagram'}
+    {'label':'Generate functional test cases','value':'Generate functional test cases'}
 ]
 
 test_genius_layout = html.Div([
-    dbc.Navbar(children=[
-        dbc.NavItem(html.A(html.I(className="fas fa-home"), href="/",style={"margin":"0px 0px 0px 20px","font-size":"30px","color":"white"})),
-        dbc.NavbarBrand("Auto Test Generator", className="mx-auto",style={"text-align":"center","font-size":"35px","font-weight":"bold"}),
-        dbc.NavItem("Synapt-GDK", style={"margin-right": "20px", "color":"red","font-weight":"bold"})],color="dark",dark=True),
+    dbc.Navbar(children=[dbc.NavItem(html.A(html.I(className="fas fa-home"), href="/",style={"margin":"0px 0px 0px 20px","font-size":"30px","color":"white"})),dbc.NavbarBrand("Auto Test Generator", className="mx-auto",style={"text-align":"center","font-size":"35px","font-weight":"bold"})],color="dark",dark=True),
     dbc.Row([
         dbc.Col([
             dbc.Select(
@@ -2166,7 +1718,7 @@ test_genius_layout = html.Div([
     ], type='circle', fullscreen=False),
     dbc.Row([
         dbc.Col([
-            html.H3("Test Metadata", style={'font-size': '30px'}),
+            html.H3("Test Steps", style={'font-size': '30px'}),
             dbc.Textarea(id='test-genius-test-steps',placeholder='Nothing generated yet...', style={'height': '500px', 'resize': 'none', 'word-wrap':'break-word', 'overflow-wrap':'break-word','background-color': '#444444', 'color': 'white'},readOnly = True)
         ], width=4),
         dbc.Col([
@@ -2174,7 +1726,7 @@ test_genius_layout = html.Div([
             dbc.Textarea(id='test-genius-test-data',placeholder='Nothing generated yet...', style={'height': '500px', 'resize': 'none', 'word-wrap':'break-word', 'overflow-wrap':'break-word','background-color': '#444444', 'color': 'white'},readOnly = True)
         ], width=4),
         dbc.Col([
-            html.H3("Test Steps and Results", style = {'font-size':'30px'}),
+            html.H3("Test Results", style = {'font-size':'30px'}),
             dbc.Textarea(id='test-genius-test-results',placeholder='Nothing generated yet...', style={'height': '500px', 'resize': 'none', 'word-wrap':'break-word', 'overflow-wrap':'break-word','background-color': '#444444', 'color': 'white'},readOnly = True)
         ], width=4),
     ], style={'margin': '20px 0px'}),
@@ -2241,29 +1793,6 @@ def generate_test_genius_output(n_clicks, code_input, action_selected, code_lang
             test_result = ""
         fullscreen = False
         return test_data_content2.strip(),test_data.strip(),test_result.strip()+"\nFinal Results-\n"+test_data_content1, False, ''
-    # i have added action 23-11-2023
-    if action_selected == 'Generate functional test cases for facebook':
-        fullscreen = True
-        try:
-            print("function call for facebook")
-            metadata, test_data, test_result = get_functional_test_response_facebook(code_input)
-        except Exception as e:
-            metadata = "Some Error Occured. Please try after some time"
-            test_data = ""
-            test_result = ""
-        fullscreen = False
-        return metadata.strip(),test_data.strip(),test_result.strip(), False, ''
-    if action_selected == 'Generate functional test cases for instagram':
-        fullscreen = True
-        try:
-            print("function call for instagram")
-            metadata, test_data, test_result = get_functional_test_response_instagram(code_input)
-        except Exception as e:
-            metadata = "Some Error Occured. Please try after some time"
-            test_data = ""
-            test_result = ""
-        fullscreen = False
-        return metadata.strip(),test_data.strip(),test_result.strip(), False, ''
     else:
         return "","","", False, ""
 
@@ -2293,10 +1822,7 @@ def create_test_genius_document(n_clicks, action_selected, code_language, input,
 # %% Sentiment Analysis:
 
 sentiment_analysis_layout = html.Div([
-    dbc.Navbar(children=[
-        dbc.NavItem(html.A(html.I(className="fas fa-home"), href="/",style={"margin":"0px 0px 0px 20px","font-size":"30px","color":"white"})),
-        dbc.NavbarBrand("Sentiment Analysis", className="mx-auto",style={"text-align":"center","font-size":"35px","font-weight":"bold"}),
-        dbc.NavItem("Synapt-GDK", style={"margin-right": "20px", "color":"red","font-weight":"bold"})],color="dark",dark=True),
+    dbc.Navbar(children=[dbc.NavItem(html.A(html.I(className="fas fa-home"), href="/",style={"margin":"0px 0px 0px 20px","font-size":"30px","color":"white"})),dbc.NavbarBrand("Sentiment Analysis", className="mx-auto",style={"text-align":"center","font-size":"35px","font-weight":"bold"})],color="dark",dark=True),
     dbc.Row([
         dbc.Col([
             html.H3("Social Media Comments ",style={'font-size':'30px'}),
@@ -2743,388 +2269,6 @@ def fill_dialogue_diagnostics(pathname):
     else:
         return "pathname is not '/dialoguediagnostics'","","","","","",""
 
-
-## RCA
-rca_dropdown_option = [
-    {'label':'Error Fetching','value':'API Integration'},
-]
-
-api_analysis_layout = html.Div([
-    dbc.Navbar(children=[
-        dbc.NavItem(html.A(html.I(className="fas fa-home"), href="/",style={"margin":"0px 0px 0px 20px","font-size":"30px","color":"white"})),
-        dbc.NavbarBrand("Root Cause Analysis", className="mx-auto",style={"text-align":"center","font-size":"35px","font-weight":"bold"}),
-        dbc.NavItem("Synapt-GDK", style={"margin-right": "20px", "color":"red","font-weight":"bold"})],color="dark",dark=True),
-    dbc.Row([
-        dbc.Col([
-            dbc.Select(
-                id = 'rca-action-dropdown',
-                options= rca_dropdown_option,
-                style={'background-color': '#444444','color':'white'},
-                placeholder="Select an Action",
-                value = "API Integration"
-            )
-        ],width = 6),
-        dbc.Col([
-            dbc.Textarea(id='rca-api-endpoint',value = None, placeholder='API Endpoint', style={'height': '10px', 'resize': 'none','background-color': '#444444', 'color': 'white',})
-        ], width = 6),
-    ],style={"margin":"20px 0px"}),
-    dbc.Row([
-        dbc.Col([
-            html.H3("Logs:", style={'font-size':'30px'}),
-            dbc.Textarea(id = 'rca-input', placeholder= 'Type or Paste logs here...', style={'height':'150px','resize':'none','background-color':'#444444','color':'white'})
-        ], width= 11),
-        dbc.Col([
-            dbc.Button([html.I(' Submit',className='fas fa-paper-plane')], color='primary', id = "rca-submit", style={'justify-content': 'center','width':'120px','margin': '47px 0px 0px 0px'}),
-            dbc.Button([html.I(' Download',className='fas fa-download')], color="primary",href="",download="example.docx",target="_blank", style={'justify-content': 'center','width':'120px','margin': '16px 0px 0px 0px'},id = "rca-save"),
-            dbc.Button([html.I(' Email',className='fas fa-envelope')], color="success", style={'justify-content': 'center','width':'120px','margin': '16px 0px 0px 0px'},id = "rca-email"),
-        ], className='d-flex flex-column align-items-center')
-    ],style={'margin':'20px 0px'}),
-    dcc.Loading(id='rca-loading', children=[
-        html.Div(id='rca-loading-output'),
-    ], type='circle', fullscreen=False),
-    dbc.Row([
-        dbc.Alert("Failed to send Email. Check your password and try again", id="rca-email-failed", color="danger", dismissable=True, is_open=False, className="mt-3")
-    ]),
-    dbc.Row([
-        dbc.Alert("Email sent successfully", id="rca-email-success", color="success", dismissable=True, is_open=False, className="mt-3")
-    ]),
-    dbc.Row([
-        dbc.Col([
-            html.H3("Error Analysis", style = {'font-size':'30px'}),
-            dbc.Textarea(id='rca-classification-box',placeholder='Nothing generated yet...', style={'height': '500px', 'resize': 'none', 'word-wrap':'break-word', 'overflow-wrap':'break-word','background-color': '#444444', 'color': 'white'},readOnly = True)
-        ], width=4),
-        dbc.Col([
-            html.H3("5-Why Analysis", style={'font-size': '30px'}),
-            dbc.Textarea(id='rca-analysis-box',placeholder='Nothing generated yet...', style={'height': '500px', 'resize': 'none', 'word-wrap':'break-word', 'overflow-wrap':'break-word','background-color': '#444444', 'color': 'white'},readOnly = True)
-        ], width=4),
-        dbc.Col([
-            html.H3("Proposed Solution", style = {'font-size':'30px'}),
-            dbc.Textarea(id='rca-proposed-solution-box',placeholder='Nothing generated yet...', style={'height': '500px', 'resize': 'none', 'word-wrap':'break-word', 'overflow-wrap':'break-word','background-color': '#444444', 'color': 'white'},readOnly = True)
-        ], width=4),
-    ], style={'margin': '20px 0px'}),
-])
-
-@app.callback(
-    Output('rca-save', 'href'),
-    Input('rca-save', 'n_clicks'),
-    State('rca-input', 'value'),
-    State('rca-analysis-box', 'value'),
-    State('rca-classification-box', 'value'),
-    State('rca-proposed-solution-box', 'value')
-)
-def create_rca_document(n_clicks, input, analysis, classification, solution):
-    n_clicks = 0
-    if n_clicks is not None or n_clicks > 0:
-        document_content = f"""Error Conditions:\n{input}\n\n5 Why? Analysis:\n{analysis}\n\nError Classification:\n{classification}\n\nProposed Solution:\n{solution}"""
-        doc = document_content.encode("utf-8")
-        b64 = base64.b64encode(doc).decode()
-        href = f"data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,{b64}"
-        return href
-    
-def get_rca_result_from_openai(input):
-    my_custom_function = [
-        {
-            'name': 'get_rca_result_from_openai',
-            'description': 'read the api error from the body of input text',
-            'parameters': {
-                'type': 'object',
-                'properties': {
-                    'classification': {
-                        'type': 'string',
-                        'description': 'Classify the error from following points - Incorrect API Permissions, Unsecured Endpoints and Data Access Tokens, Invalid Session Management, Expiring APIs, Bad URLs/HTTP Errors, Overly Complex API Endpoints, Exposed APIs on IPs'
-                    },
-                    'analysis': {
-                        'type': 'string',
-                        'description': r'Give analysis of the error in 5-WHY principle in generic form eg - Why did the API error occur?, Why is there maintenance or an unexpected issue?, etc. (give 5 questions and their analysis) also add ". \n" after end of each analysis '
-                    },
-                    'solution': {
-                        'type': 'string',
-                        'description': 'possible solutions considering analysis of the error in 5 points'
-                    },
-                    'depth_classification': {
-                        'type': 'string',
-                        'description': 'Classify the error in following points - 1. Request URL, 2. Error Type, 3. Error Code, 4. Error Message, 5. Request Method, 6. Category, 7. Probable Cause, 8. Context, 9. Framework version, 10. Exception Location, 11. Impacted systems, 12. Impacted services, 13. Number of lines of logs processed (count yourself), 14. Is password or sensitive information exposed? (Yes/No), 15. Is there any 3rd party system integration challenge? If yes, list them. (write in number Points and type "not available" if not found)'
-                    },
-                    'specific_solution': {
-                        'type': 'string',
-                        'description': 'possible solutions considering analysis of the error specifically error message and error type in 5 points'
-                    },
-                    'solution_code': {
-                        'type': 'string',
-                        'description': 'write only code/sample_configuration to solve this issue (No explanation and no AI like "Here is a sample code snippet..."). If not available tell recommendation in code to resolve this issue. IMPORTANT: "Write a disclaimer to check code (if any) after 1 blank line"'
-                    },
-                }
-            }   
-        }
-    ]
-
-    api_error = input
-
-    response = openai.ChatCompletion.create(
-        model="gpt-4",
-        messages=[{'role': 'user', 'content': api_error}],
-        temperature=0.3,
-        max_tokens=1600,
-        top_p=1,
-        frequency_penalty=0,
-        presence_penalty=0,
-        functions = my_custom_function,
-        function_call = 'auto'
-    )
-
-    answer = response.choices[0].message.function_call.arguments
-
-    answer = json.loads(answer)
-
-    pre_analysis = answer['analysis']
-    pre_analysis = pre_analysis.replace('? ','?\n')
-    pre_analysis = pre_analysis.replace('. \n','. \n\n')
-
-    return f"{answer['classification']}\n\nDEPTH CLASSIFICATION:\n{answer['depth_classification']}", f"{answer['solution']}\n\nRecommendation for solution (Code/Recommendation):\n\n{answer['solution_code']}", f"{pre_analysis}" #
-
-@app.callback(
-    Output('rca-analysis-box', 'value'),
-    Output('rca-classification-box', 'value'),
-    Output('rca-proposed-solution-box', 'value'),
-    Output('rca-loading','fullscreen'),
-    Output('rca-loading-output','children'),
-    Input('rca-submit', 'n_clicks'),
-    State('rca-input', 'value'),
-    State('rca-loading','fullscreen')
-)
-def get_rca_result(n_clicks, input, fullscreen):
-    if n_clicks is None:
-        return '',"","",False,''
-    else:
-        try:
-            fullscreen = True
-            classification, solution, analysis = get_rca_result_from_openai(input)
-            fullscreen = False
-            return analysis, classification, solution, fullscreen, ""
-        except Exception as e:
-            fullscreen = True
-            fullscreen = False
-            classification, solution, analysis = str(e), "None", str(e)
-            return analysis, "Some Error Occured\nRefer Logs for solution", solution, fullscreen, ""
-        
-@app.callback(
-    Output('rca-email-failed','is_open'),
-    Output('rca-email-success','is_open'),
-    Input("rca-email",'n_clicks'),
-    State('rca-email-failed','is_open'),
-    State('rca-email-success','is_open'),
-    State('rca-input', 'value'),
-    State('rca-analysis-box', 'value'),
-    State('rca-classification-box', 'value'),
-    State('rca-proposed-solution-box', 'value')
-)
-def send_rca_email(n_clicks, email_failed, email_sent, input, analysis, classification, solution):
-    if n_clicks is None:
-        return False,False
-    try:
-        document_content = f"""Error Conditions:\n{input.strip()}\n\n5 Why? Analysis:\n{analysis.strip()}\n\nError Classification:\n{classification.strip()}\n\nProposed Solution:\n{solution.strip()}""" 
-        send_email(document_content)
-        return False, True
-    except Exception as e:
-        logging.error(f'str{e}')
-        return True,False
-## TS Generator
-
-ts_generator_layout = html.Div([
-    dbc.Navbar(children=[
-        dbc.NavItem(html.A(html.I(className="fas fa-home"), href="/",style={"margin":"0px 0px 0px 20px","font-size":"30px","color":"white"})),
-        dbc.NavbarBrand("Test Scenario Generator", className="mx-auto",style={"text-align":"center","font-size":"35px","font-weight":"bold"}),
-        dbc.NavItem("Synapt-GDK", style={"margin-right": "20px", "color":"red", "font-weight":"bold"})],color="dark",dark=True),
-    dbc.Row([
-        dbc.Col([
-            html.H3("Business Case:", style={'font-size':'30px'}),
-            dbc.Textarea(id = 'tsg-input', placeholder= 'Type or Paste Buisness case here...', style={'height':'150px','resize':'none','background-color':'#444444','color':'white'})
-        ], width= 6),
-        dbc.Col([
-            html.H3("System Name:", style={'font-size':'30px'}),
-            dbc.Textarea(id = 'tsg-system-input', placeholder= 'list name of systems here...', style={'height':'150px','resize':'none','background-color':'#444444','color':'white'})
-        ], width= 5),
-        dbc.Col([
-            dbc.Button([html.I(' Submit',className='fas fa-paper-plane')], color='primary', id = "tsg-submit", style={'justify-content': 'center','width':'120px','margin': '47px 0px 0px 0px'}),
-            dbc.Button([html.I(' Download',className='fas fa-download')], color="primary",href="",download="example.docx",target="_blank", style={'justify-content': 'center','width':'120px','margin': '16px 0px 0px 0px'},id = "tsg-save"),
-            dbc.Button([html.I(' Email',className='fas fa-envelope')], color="success", style={'justify-content': 'center','width':'120px','margin': '16px 0px 0px 0px'},id = "tsg-email"),
-        ], className='d-flex flex-column align-items-center')
-    ],style={'margin':'20px 0px'}),
-    dcc.Loading(id='tsg-loading', children=[
-        html.Div(id='tsg-loading-output'),
-    ], type='circle', fullscreen=False),
-    dbc.Row([
-        dbc.Alert("Failed to send Email. Check your password and try again", id="tsg-email-failed", color="danger", dismissable=True, is_open=False, className="mt-3")
-    ]),
-    dbc.Row([
-        dbc.Alert("Email sent successfully", id="tsg-email-success", color="success", dismissable=True, is_open=False, className="mt-3")
-    ]),
-    dbc.Row([
-        dbc.Col([
-            html.H3("Functional Scenario", style = {'font-size':'30px'}),
-            dbc.Textarea(id='tsg-functional-box',placeholder='Nothing generated yet...', style={'height': '500px', 'resize': 'none', 'word-wrap':'break-word', 'overflow-wrap':'break-word','background-color': '#444444', 'color': 'white'},readOnly = True)
-        ], width=6),
-        dbc.Col([
-            html.H3("Non-Functional Scenario", style={'font-size': '30px'}),
-            dbc.Textarea(id='tsg-non-functional-box',placeholder='Nothing generated yet...', style={'height': '500px', 'resize': 'none', 'word-wrap':'break-word', 'overflow-wrap':'break-word','background-color': '#444444', 'color': 'white'},readOnly = True)
-        ], width=6),
-    ], style={'margin': '20px 0px'})
-])
-
-def get_tsg_functional_response(buisness_use_case, system_name):
-    ui_response = openai.Completion.create(
-        model="text-davinci-003",
-        prompt=f"Statement:\n\"{buisness_use_case}\"\n{system_name}\nwhat all things are mandatory to be part of buisness story from this use case in User interface (UI) test cases:\n(give answer in 5 numbered points in new line)\n\nAnswer:",
-        temperature=1,
-        max_tokens=300,
-        top_p=1,
-        frequency_penalty=0.62,
-        presence_penalty=0.62
-    )
-
-    usability_response = openai.Completion.create(
-        model="text-davinci-003",
-        prompt=f"Statement:\n\"{buisness_use_case}\"\n{system_name}\nwhat all things are mandatory to be part of buisness story from this use case in Usability test cases:\n(give answer in 5 numbered points in new line)\n\nAnswer:",
-        temperature=1,
-        max_tokens=300,
-        top_p=1,
-        frequency_penalty=0.62,
-        presence_penalty=0.62
-    )
-
-    functionality_response = openai.Completion.create(
-        model="text-davinci-003",
-        prompt=f"Statement:\n\"{buisness_use_case}\"\n{system_name}\nwhat all things are mandatory to be part of buisness story from this use case in Functionality test cases:\n(give answer in 5 numbered points in new line)\n\nAnswer:",
-        temperature=1,
-        max_tokens=300,
-        top_p=1,
-        frequency_penalty=0.62,
-        presence_penalty=0.62
-    )
-
-    integration_response = openai.Completion.create(
-        model="text-davinci-003",
-        prompt=f"Statement:\n\"{buisness_use_case}\"\n{system_name}\nwhat all things are mandatory to be part of buisness story from this use case in Integration test cases\n(give answer in 5 numbered points in new line)\n\nAnswer:",
-        temperature=1,
-        max_tokens=300,
-        top_p=1,
-        frequency_penalty=0.62,
-        presence_penalty=0.62
-    )  
-
-    ui_response = ui_response.choices[0].text
-    ui_response= ui_response.strip()
-
-    usability_response = usability_response.choices[0].text
-    usability_response = usability_response.strip()
-
-    functionality_response = functionality_response.choices[0].text
-    functionality_response = functionality_response.strip()
-
-    integration_response = integration_response.choices[0].text
-    integration_response = integration_response.strip()
-
-    return f"User interface (UI) test cases:\n{ui_response}", f"Usability test cases:\n{usability_response}", f"Functionality test cases:\n{functionality_response}", f"Integration test cases:\n{integration_response}"
-
-def get_tsg_nonfunctional_response(buisness_use_case, system_name):
-
-    security_response = openai.Completion.create(
-        model="text-davinci-003",
-        prompt=f"Statement:\n\"{buisness_use_case}\"\n{system_name}\nwhat all things are mandatory to be part of buisness story from this use case in Security test cases\n(give answer in 5 numbered points in new line)\n\nAnswer:",
-        temperature=1,
-        max_tokens=300,
-        top_p=1,
-        frequency_penalty=0.62,
-        presence_penalty=0.62
-    )
-
-    performnce_response = openai.Completion.create(
-        model="text-davinci-003",
-        prompt=f"Statement:\n\"{buisness_use_case}\"\n{system_name}\nwhat all things are mandatory to be part of buisness story from this use case in Performance test cases\n(give answer in 5 numbered points in new line)\n\nAnswer:",
-        temperature=1,
-        max_tokens=300,
-        top_p=1,
-        frequency_penalty=0.62,
-        presence_penalty=0.62
-    )
-
-    security_response = security_response.choices[0].text
-    security_response = security_response.strip()
-
-    performnce_response = performnce_response.choices[0].text
-    performnce_response = performnce_response.strip()
-
-    return f"Security test cases:\n{security_response}", f"Performance test cases:\n{performnce_response}"
-
-@app.callback(
-    Output('tsg-functional-box','value'),
-    Output('tsg-non-functional-box','value'),
-    Output('tsg-loading','fullscreen'),
-    Output('tsg-loading-output','children'),
-    Input('tsg-submit','n_clicks'),
-    State('tsg-input', 'value'),
-    State('tsg-system-input','value'),
-    State('tsg-loading','fullscreen')
-)
-def get_tsg_result(n_clicks, input, system_name, fullscreen):
-    if n_clicks is None:
-        return '',"",False,""
-    if system_name is None:
-        system_name = ""
-    else:
-        system_name = f"System name is {system_name}"
-
-    try:
-        fullscreen = True
-        ui_response, usability_response, functionality_response, integration_response,  = get_tsg_functional_response(input, system_name)
-        functional_scenario = f"{ui_response}\n\n{usability_response}\n\n{functionality_response}\n\n{integration_response}"
-
-        security_response, performance_response = get_tsg_nonfunctional_response(input, system_name)
-        non_functional_scenario = f"{security_response}\n\n{performance_response}"
-        fullscreen = False
-        return functional_scenario, non_functional_scenario, fullscreen, ""
-    except Exception as e:
-        return f"Error Occured:\n{str(e)}", "", False, ""
-
-@app.callback(
-    Output('tsg-save', 'href'),
-    Input('tsg-save', 'n_clicks'),
-    State('tsg-input', 'value'),
-    State('tsg-system-input', 'value'),
-    State('tsg-functional-box', 'value'),
-    State('tsg-non-functional-box', 'value'),
-)
-def create_tsg_document(n_clicks, input, system_name, functional, nonfunctional):
-    n_clicks = 0
-    if n_clicks is not None or n_clicks > 0:
-        document_content = f"""Business Scenario:\n{input.strip()}\n{system_name}\n\nFunctional Scenario:\n{functional.strip()}\n\nNonfunctional Scenario:\n{nonfunctional.strip()}"""
-        doc = document_content.encode("utf-8")
-        b64 = base64.b64encode(doc).decode()
-        href = f"data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,{b64}"
-        return href
-    
-@app.callback(
-    Output('tsg-email-failed','is_open'),
-    Output('tsg-email-success','is_open'),
-    Input("tsg-email",'n_clicks'),
-    State('tsg-email-failed','is_open'),
-    State('tsg-email-success','is_open'),
-    State('tsg-input', 'value'),
-    State('tsg-system-input', 'value'),
-    State('tsg-functional-box', 'value'),
-    State('tsg-non-functional-box', 'value'),
-)
-def send_rca_email(n_clicks, email_failed, email_sent, input, system_name, functional, nonfunctional):
-    if n_clicks is None:
-        return False,False
-    try:
-        document_content = f"""Business Scenario:\n{input.strip()}\n{system_name}\n\nFunctional Scenario:\n{functional.strip()}\n\nNonfunctional Scenario:\n{nonfunctional.strip()}"""
-        send_email(document_content)
-        return False, True
-    except Exception as e:
-        logging.error(f'str{e}')
-        return True,False
-
 #%% Usage Insights
 user_stats_layout = html.Div(
     children=[
@@ -3486,10 +2630,6 @@ def display_page(pathname):
         return dialogue_diagnostic_layout
     elif pathname == '/testgenius':
         return test_genius_layout
-    elif pathname == '/api-analysis':
-        return api_analysis_layout
-    elif pathname == '/test-scenario-generation':
-        return ts_generator_layout
     else:
         return '404 Page Not Found'
 

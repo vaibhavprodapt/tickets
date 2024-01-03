@@ -61,6 +61,7 @@ import io
 from googleapiclient.http import MediaIoBaseDownload
 import uuid
 import random
+import PyPDF2
 #from pysqlcipher3 import dbapi2 as sqlcipher
 # %%
 
@@ -956,6 +957,18 @@ home_layout = html.Div(
                                 },
                             )
                         ),
+                        dbc.Col(
+                            html.I(
+                                className="fas fa-file-invoice fa-lg",
+                                style={
+                                    "font-size": "48px",
+                                    "width": "100%",
+                                    "height": "100px",
+                                    "line-height": "100px",
+                                    "text-align": "center",
+                                },
+                            )
+                        ),
                     ]
                 ),
                 dbc.Row(
@@ -974,6 +987,14 @@ home_layout = html.Div(
                                 color="primary",
                                 style={"width": "100%", "font-size": "27px"},
                                 href="/user_stats",
+                            )
+                        ),
+                        dbc.Col(
+                            dbc.Button(
+                                "Ticket Insight Summary",
+                                color="primary",
+                                style={"width": "100%", "font-size": "27px"},
+                                href="/ticket_summary",
                             )
                         ),
                     ]
@@ -1218,6 +1239,211 @@ def start_processing(n_clicks, fullscreen,logs):
     return logs, fullscreen, ""
 
 
+
+#ticket_summery----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+def parse_contents(contents):
+    pdf_reader = PyPDF2.PdfReader(contents)
+    num_pages = len(pdf_reader.pages)
+
+    for page_num in range(num_pages):
+        page = pdf_reader.pages[page_num]
+        text = page.extract_text()
+        print(f"Page {page_num + 1}:\n{text}\n")
+
+    return text
+
+ticket_summery_layout =  html.Div([
+    dbc.Navbar(children=[
+        dbc.NavItem(html.A(html.I(className="fas fa-home"), href="/",style={"margin":"0px 0px 0px 20px","font-size":"30px","color":"white"})),
+        dbc.NavbarBrand("Ticket Summary", className="mx-auto",style={"text-align":"center","font-size":"35px","font-weight":"bold"}),
+        dbc.NavItem("Synapt-GDK", style={"margin-right": "20px", "color":"red","font-weight":"bold"})],color="dark",dark=True),
+    dbc.Row([
+        dbc.Col([
+            html.H3("Text Paste here:", style = {'font-size':'30px'}),
+            dbc.Textarea(id = "ticket_summery_text",placeholder="Enter here...",style={'height': '150px', 'resize': 'none','word-wrap':'break-word', 'overflow-wrap':'break-word','background-color': '#444444', 'color': 'white'})
+        ],width = 5),
+        dbc.Col([
+            html.H3("Upload:", style={'font-size': '30px'}),
+            dcc.Upload(
+                id='ticket_summery_upload',
+                 children=[
+                    dcc.Upload(
+                        id='upload-data',
+                        children=html.Div([
+                            'Drag and Drop or ',
+                            html.A('Select a PDF File'),
+                        ]),
+                        multiple=False
+                    ),
+                ],
+                style={'border': '1px dashed #444444', 'padding': '20px', 'margin': '20px 0px'},
+            ),
+        ], width=1),
+
+         dbc.Col([
+        html.H3("PDF Text", style={'font-size': '30px'}),
+            dbc.Textarea(id="ticket_summery_pdf_text", placeholder="PDF content will appear here...",
+                        style={'height': '150px', 'resize': 'none', 'word-wrap': 'break-word',
+                                'overflow-wrap': 'break-word', 'background-color': '#444444', 'color': 'white'})
+        ], width=5),
+
+        dbc.Col([
+            dbc.Button([html.I(' Submit',className='fas fa-paper-plane')], color='primary', id = "ticket_summery_submit", style={'justify-content': 'center','width':'120px','margin': '47px 0px 0px 0px'}),
+            dbc.Button([html.I(' Download',className='fas fa-download')], color="primary",href="",download="example.docx",target="_blank", style={'justify-content': 'center','width':'120px','margin': '16px 0px 0px 0px'},id = "ticket_summery_save"),
+            dbc.Button([html.I(' Email',className='fas fa-envelope')], color="success", style={'justify-content': 'center','width':'120px','margin': '16px 0px 0px 0px'},id = "ticket_summery_email"),
+        ], className='d-flex flex-column align-items-center'),
+        ], style={'margin': '20px 0px'}),
+        dcc.Loading(id='ticket_summery_loading', children=[
+            html.Div(id='ticket_summery_output'),
+        ], type='circle', fullscreen=False),
+    dbc.Row([
+        dbc.Row([
+        dbc.Col([
+            html.H3("SMS Message", style={'font-size': '30px'}),
+            dbc.Textarea(id='ticket_summery_sms_output-box',placeholder='Nothing generated yet...', style={'height': '500px', 'resize': 'none', 'word-wrap':'break-word', 'overflow-wrap':'break-word','background-color': '#444444', 'color': 'white'},readOnly = True)
+        ], width=5),
+        dbc.Col([
+            html.H3("Mail", style={'font-size': '30px'}),
+            dbc.Textarea(id='ticket_summery_mail_output-box',placeholder='Nothing generated yet...', style={'height': '500px', 'resize': 'none', 'word-wrap':'break-word', 'overflow-wrap':'break-word','background-color': '#444444', 'color': 'white'},readOnly = True)
+        ], width=7),
+    ], style={'margin': '20px 0px'}),
+    ])
+    ])
+
+@app.callback(Output('ticket_summery_pdf_text', 'value'),
+             Input('ticket_summery_upload', 'contents'))
+
+
+  
+
+@app.callback(
+    Output("ticket_summery_sms_output-box","value"),
+    Output("ticket_summery_mail_output-box","value"),
+    Output('ticket_summery_loading', 'fullscreen'), 
+    Output('ticket_summery_output', 'children'),
+    Input("ticket_summery_submit","n_clicks"),
+    State("ticket_summery_text","value"),
+    State('ticket_summery_pdf_text','value'),
+    State('ticket_summery_loading','fullscreen'),
+)
+def generate_doc_generation_output(n_clicks, topic, output_required,fullscreen):
+    if n_clicks is None:
+        return "","",False,""
+    resultsms = "write something correct"
+    resultmail = ""
+    # start_time = time.time()
+    try:
+        if topic!="":
+            fullscreen = True
+            response = openai.ChatCompletion.create(
+                model="gpt-3.5-turbo-16k",
+                messages=[
+                    {
+                    "role": "system",
+                    "content": "You are a system. Your task is to extract some information(customer_name,ticket_number,progress_update,current_status,next_steps) from the given prompt and write an SMS as I want. I am giving you a format of my SMS template.\nexample :\nHi {customer_name}, \n\nQuick update on your ticket {ticket_number}:\n\nProgress: {progress_update}\nStatus: {current_status}\nNext Steps: {next_steps}\n\nThanks for your patience! Feel free to reply if you have any questions.\n\nBest,\n{your_name} @ {YourCompany}\n"
+                    },
+                    {
+                    "role": "user",
+                    "content": "All timestamps in Eastern Time.\n(1) Date Entered / Name :\n10/05/2023 07:46:39\n\nLog Text:\nTicket has been Closed\n\n(2) Date Entered / Name :\n07/20/2023 17:35:50\n\nLog Text:\nPer Mike... pre -FEC errors were reduced by about 60%.. says we should be good... Left vmail for Tim to be released from\nsite\n\n(3) Date Entered / Name :\n07/20/2023 17:34:39\n\nLog Text:\nLNS/Tim arrived on site. Ckecked  light level slot 7 port 9 -26.7 Cleaned fibers at filter and removed attenuator on\nRx..current reading -21.7 Engaged Mike Kennan says ering looks better..Rx level @ -21.7 s/b ok. Monitoring for pre -FEC \nbit errors. Say ring needs to be re -balanced.\n\n(4) Date Entered / Name :\n07/18/2023 13:10:09\n\nLog Text:\nHi Marko, The  customer rescheduled for 7/20 4:30 PM ET . I updated the WMS with that info. Will Tim still be the\ndispatching technician?\n\n(5) Date Entered / Name :\n07/18/2023 12:07:51\n\nLog Text:\nwindow approval didn't go through, it should be later this week. i updated the WMS and emailed LNS\n\n(6) Date Entered / Name :\n07/18/2023 11:27:04\n\nLog Text:\nPatrick advised we have access today starting at 4:30 PM ET. created WMS 371803286 and emailed LNS Mgr Marko\nadvising\n\n(7) Date Entered / Name :\n06/29/2023 12:33:13 li3508\n\nLog Text:\nthere's an augment scheduled for July 15th to remove the Bishop Ln location. I worked with Mike Kennen. Mike is reaching\nout to Patrick for more documentation regarding the levels into some of the cards. Mike will advise on an action plan.  \n\n(8) Date Entered / Name :\n06/05/2023 00:38:24 tm1758\n\nPage 2:\n\nLog Text:\nThe optical path for the ITU is on the LONG side of the ring. The ITU express patches at: AGB NODE B 1400 N\nHurstbourne Pkwy Louisville, KY 40223 SITE ID: UPSXUSKY101 CLLI CODE: LSVLKY75H06 15216 EDGE 4 CH OADM\n(52.5) UNIT 3 15216 -FLD-4-52.5 On the OADM's,  1554.13 is fibered from EAST to WEST. If the source of the excessive\nerrors are not resolved at the ADD/DROP, dispatch maybe required to verify fibers between the EAST and WEST OADM\nfor 1554.13.\n\n(9) Date Entered / Name :\n06/04/2023 23:51:14 tm1758\n\nLog Text:\nLooking at issue, GCC on each end of ITU, 1554.13. No other alarms on the ring to indicate issue on other ITU's. Pulled \nPM's for each end that has the GCC Fail alarm. UPCLOU17DS01 SLOT 6 PORT 9 OPR: -20.5 dBm ALL PM counts are\nclean. UPCLOU8DS01 SH2 SLOT 7  PORT 9 OPR: -27 dBm There are random UNCORRECTABLE WORDS, but the FEC\nPM's have millions of bit errors. The excessive bit errors and the low optical power level are suspected to be causing the\nGCC fail alarms.\n\n(10) Date Entered / Name :\n05/25/2023 20:35:11 jg357h\n\nLog Text:\nCreated CISCO TAC case number 695599772.\n\n(11) Date Entered / Name :\n05/25/2023 20:04:45\n\nLog Text:\nLooking at the FLR this goes from Node A 911 Grade Lane(UPCLOU8DS01) to Node B 911 Grade Lane(UPCLOU9DS01)\nto 825 Lotus Ave Louisville, KY(UPCLOU7DS01). I was shooting the fiber from Node A(UPCLOU8DS01) to 825 Lotus Ave\nLouisville, KY(UPCLOU7DS01) and isol ated Node B 911 Grade Lane(UPCLOU9DS01). The client saw a hit on the traffic\nfor Node B 911 Grade Lane(UPCLOU9DS01). Verified with client that traffic is restored and released the techs. Will\nengage CISOCO TAC.\n\n(12) Date Entered / Name :\n05/25/2023 19:21:38\n\nLog Text:\nLate entry - verified the GCC channels built on each end also restarted control cards on each, to no avail.\n\n(13) Date Entered / Name :\n05/25/2023 19:15:40\n\nLog Text:\nTech Alain is now at 825 Lotus ave. Engaged tier two - waiting for recommendation.\n\n(14) Date Entered / Name :\n05/25/2023 18:58:07\n\nLog Text:\nHad tech Alain at 200 High Rise to clean fiber at the node and patch panel, no change. Will need to perform OTDR shot.\nTech Alain is dispatching to 825 Lotus Lane to perform OTDR shot from there.\n\n\nPage 3:\n(15) Date Entered / Name :\n05/25/2023 18:53:41\n\nLog Text:\nTechs are onsite - gave lamp test. Verified working on correct nodes. There is another node betweens these\nlocations(UPCLOU17DS01 & UPCLOU8DS01). UPCLOU7DS01 825 Lotus Ave Louisville, KY. Believe we dispatched to\nthe wrong location.\n\n(16) Date Entered / Name :\n05/25/2023 10:29:24\n\nLog Text:\nFrom: vmohanan@ups.com [vmohanan@ups.com] Sent: Thursday, May 25, 2023 10:16 AM To: ALHADAD, SALEH A\n[sa2522@att.com]; HUYNH, KEVIN K [KH9142@att.com]; JEEVAN MUNI CHARAN, M [mj9206@att.com]; CASON, JOHN\nR [jc7599@att.com]; skumar5@ups.com; DAVIS, JEREMIAH  A [jd6129@att.com]; noc@ups.com; UPS@list.att.com Cc:\nUVN Team [dl -uvnteam@att.com]; kleach@ups.com; rsugg@ups.com; chintanshah@ups.com; LUKE, TIM\n[hl3213@att.com]; LOSICH, MARKO [ML679C@att.com] Subject: RE: UPS Ring C - Aots tkt# 319504689 - Maintenance\nWindow Request Thanks Sal, Below is local site contact details. 911 Grade Lane Kimberly Leach (502) 445 -8652) 200\nHigh Rise Dr Raleigh Sugg (502 -224-8725) If you have any issues, Please reach out to our hotline # 502 -916-0685\nThanks, Vel M From: ALHADAD, SALEH A [sa2522@att.com] Sent: Thursday, May 25, 2023 9:17 AM To: Vel Murugan\nMohanan [vmohanan@ups.com]; HUYNH, KEVIN K [KH9142@att.com]; JEEVAN MUNI CHARAN, M [mj9206@att.com];\nCASON, JOHN R [jc7599@att.com]; Sunil Kumar [skumar5@ups.com]; DAVIS, JEREMIA H A [jd6129@att.com]; Upsnoc\nMBX [noc@ups.com]; UPS@list.att.com Cc: UVN Team [dl -uvnteam@att.com]; Kimberly Leach [kleach@ups.com];\nRaleigh Sugg [rsugg@ups.com]; Chintan Shah [chintanshah@ups.com]; LUKE, TIM [hl3213@att.com]; LOSICH, MARKO\n[ML679C@att.com ] Subject: [EXTERNAL] RE: UPS Ring C - Aots tkt# 319504689 - Maintenance Window Request VEL,\nTechs information: Tim Luke phone (502)303 -7878 will be the tech for WP NODE A 911 Grade Lane - Worldport Louisville,\nKY and Alain Sanchez phone (803)998 -7465 will  be the tech for AOP Node A 200 High Rise Dr Louisville, KY. Thank you.\nSaleh Alhadad Sr Specialist -Network Support Customer Service & Operations | Service Assurance & Client Support AT&T\nServices, Inc 754 Peachtree St NE, Room 13D24 Atlanta, GA 30308 USA Desk: 404.898.7063 | Team: 888.397.0747 |\nsa2522@us.att.com\n\n(17) Date Entered / Name :\n05/25/2023 08:26:32 mj9206\n\nLog Text:\nFrom: vmohanan@ups.com [vmohanan@ups.com] Sent: Thursday, May 25, 2023 5:50 PM To: HUYNH, KEVIN K\n[KH9142@att.com]; JEEVAN MUNI CHARAN, M [mj9206@att.com]; CASON, JOHN R [jc7599@att.com];\nskumar5@ups.com; DAVIS, JEREMIAH A [jd6129@att.com]; noc@ups.com; UP S@list.att.com Cc: UVN Team [dl -\nuvnteam@att.com]; kleach@ups.com; rsugg@ups.com; chintanshah@ups.com; LUKE, TIM [hl3213@att.com]; LOSICH,\nMARKO [ML679C@att.com] Subject: RE: UPS Ring C - Aots tkt# 319504689 - Maintenance Window Request Hi Sal, As\ndiscussed , Maintenance window for this activity will be between 5pm 9pm EST today (5/25) for both the sites. Please share\nthe tech details ASAP to arrange the access. Thanks, Vel M\n\n(18) Date Entered / Name :\n05/24/2023 18:22:29\n\nLog Text:\nHad Tim check light coming out of filter, reading -27 dB, and reading at OSP C42 pnl 7 port 2 -0.54 dB\n\n(19) Date Entered / Name :\n05/24/2023 18:05:23\n\nLog Text:\nWill need to duel  dispatch to AOP Node A 200 High Rise Dr Louisville, KY 40213 UPCLOU17DS01 slot 6 port 9 and WP\nNODE A 911 Grade Lane - Worldport Louisville, KY 40213 UPCLOU8DS01 slot 7 port 9 RX -27 dB\n\n\nPage 4:\n(20) Date Entered / Name :\n05/24/2023 18:00:31\n\nLog Text:\nTech Tim,  replaced card slot 7. card failure alarm cleared. GCC Term failure on slot 7 port 9 and GCC Term failure on slot\n6 port 9 at UPCLOU17DS01 UPS 200 HIGH RISE DR / LOUISVILLE KY 40213 / AOP NODE A / FIC: UVN -A /\nLSVLKYEGNA1\n\n(21) Date Entered / Name :\n05/24/2023 10:34:37\n\nLog Text:\nFrom: vmohanan@ups.com [vmohanan@ups.com] Sent: Wednesday, May 24, 2023 9:55 AM To: JEEVAN MUNI\nCHARAN, M [mj9206@att.com]; CASON, JOHN R [jc7599@att.com]; skumar5@ups.com; DAVIS, JEREMIAH A\n[jd6129@att.com]; noc@ups.com; UPS@list.att.com Cc: UVN Team [dl -uvnteam@att.com]; kleach@ups.com;\nrsugg@ups.com; chintanshah@ups.com; LUKE, TIM [hl3213@att.com] Subject: RE: UPS Ring C - Aots tkt# 319504689 -\nMaintenance Window Request Hi Jeevan, Local Site Contact is Kim Leach / 502 -445-8652 Thanks, Vel M\n\n(22) Date Entered / Name :\n05/24/2023 00:16:24\n\nLog Text:\nopened WMS 352310184 for dispatch and requested techs name ASAP\n\n(23) Date Entered / Name :\n05/23/2023 23:06:12\n\nLog Text:\ncustomer gave a window of 5/24 3:30pm -7:30pm ET . customer will need the tech name dispatching for access ASAP\n\n(24) Date Entered / Name :\n05/23/2023 21:28:21\n\nLog Text:\nSubject: UPS Ring C - Aots tkt# 319504689 - Maintenance Window Request AT&T UVN team would like to request a 4 -\nhour maintenance window to replace a failed circuit pack at 911 Grade Ln, Louisville, KY 40213. The protect path of GigE\ncircuit UPCLOU17DS01 -07010601 is currently down due to a card failure. Please contact t he UVN group at 888 -397-0747\nand refer to ticket 319504689 with a maintenance window and access or reply all to this email.\n\n(25) Date Entered / Name :\n05/23/2023 19:39:45\n\nLog Text:\npart was verified on WMS tkt# 352308933 LNS tech Tim Luke (hl3213) verified he has the part.\n\n(26) Date Entered / Name :\n05/23/2023 19:39:01\n\nLog Text:\nCustomer Log @ 05/23/2023 10:19:00 pm for 000000319481071 (This Ticket) FA UV_SERVICES -- by Kevin Huynh\nkh9142 Part failure slot 7 AR -XPE HW part # 800-38430 -01 Serial # CAT2410B0FW CLEI Code: WOOMAS5WAA UPS\n911 GRADE LANE - WORLDPORT NODE A / 1ST FLOOR NODE A / C42 / LOUISVILLE / KENTUCKY / 40213 FIC: C42\n\nPage 5:\n\n(27) Date Entered / Name :\n05/23/2023 19:34:46 UDESKTOP\n\nLog Text:\nAT&T Notifications sent to: EventType: CREATE;Recipient Name: Workgroup UMC_UPA EventType: CREATE;Recipient\nName: Workgroup UMC_UPC"
+                    },
+                    {
+                    "role": "assistant",
+                    "content": "Hi Customer, \n\nQuick update on your ticket 319504689:\n\nProgress: The ticket was closed on 10/05/2023 at 07:46:39 ET.\nStatus: The ticket has been closed.\nNext Steps: No further action required.\n\nThanks for your patience! Feel free to reply if you have any questions.\n\nBest,\nYourCompany @ YourCompany"
+                    },
+                    {
+                    "role": "user",
+                    "content": f"{topic}"    
+                    }
+                ],
+                temperature=0.43,
+                max_tokens=1024,
+                top_p=1,
+                frequency_penalty=0,
+                presence_penalty=0
+                )
+            resultsms = response['choices'][0]['message']['content']
+
+            response = openai.ChatCompletion.create(
+                model="gpt-3.5-turbo-16k",
+                messages=[
+                    {
+                    "role": "system",
+                    "content": "You are a system. Your task is to extract some information(customer_name,ticket_number,progress_update,current_status,next_steps,dates) from the given prompt and write a MAIL as I want. I am giving you a format of my MAIL template.Dont copy paste this is only for your understanding.\nExample :\nSubject: Update on Your Ticket -{ticket_number} and Issue\n\nDear {customer_name},\nI hope this message finds you well. I'm writing to provide you with an update on the status of your ticket.\n\nProgress:\n1. Resolution status: \n2. Current Work queue:\n3.Actions Taken: \n4.Next Steps:\n\nWe sincerely appreciate your patience and understanding as we work to resolve this matter. Your satisfaction is our priority.\n\nBest regards\n{your_name} \n{your_company}\n"
+                    },
+                    {
+                    "role": "user",
+                    "content": "All timestamps in Eastern Time.\n(1) Date Entered / Name :\n10/05/2023 07:46:39\n\nLog Text:\nTicket has been Closed\n\n(2) Date Entered / Name :\n07/20/2023 17:35:50\n\nLog Text:\nPer Mike... pre -FEC errors were reduced by about 60%.. says we should be good... Left vmail for Tim to be released from\nsite\n\n(3) Date Entered / Name :\n07/20/2023 17:34:39\n\nLog Text:\nLNS/Tim arrived on site. Ckecked  light level slot 7 port 9 -26.7 Cleaned fibers at filter and removed attenuator on\nRx..current reading -21.7 Engaged Mike Kennan says ering looks better..Rx level @ -21.7 s/b ok. Monitoring for pre -FEC \nbit errors. Say ring needs to be re -balanced.\n\n(4) Date Entered / Name :\n07/18/2023 13:10:09\n\nLog Text:\nHi Marko, The  customer rescheduled for 7/20 4:30 PM ET . I updated the WMS with that info. Will Tim still be the\ndispatching technician?\n\n(5) Date Entered / Name :\n07/18/2023 12:07:51\n\nLog Text:\nwindow approval didn't go through, it should be later this week. i updated the WMS and emailed LNS\n\n(6) Date Entered / Name :\n07/18/2023 11:27:04\n\nLog Text:\nPatrick advised we have access today starting at 4:30 PM ET. created WMS 371803286 and emailed LNS Mgr Marko\nadvising\n\n(7) Date Entered / Name :\n06/29/2023 12:33:13 li3508\n\nLog Text:\nthere's an augment scheduled for July 15th to remove the Bishop Ln location. I worked with Mike Kennen. Mike is reaching\nout to Patrick for more documentation regarding the levels into some of the cards. Mike will advise on an action plan.  \n\n(8) Date Entered / Name :\n06/05/2023 00:38:24 tm1758\n\nPage 2:\n\nLog Text:\nThe optical path for the ITU is on the LONG side of the ring. The ITU express patches at: AGB NODE B 1400 N\nHurstbourne Pkwy Louisville, KY 40223 SITE ID: UPSXUSKY101 CLLI CODE: LSVLKY75H06 15216 EDGE 4 CH OADM\n(52.5) UNIT 3 15216 -FLD-4-52.5 On the OADM's,  1554.13 is fibered from EAST to WEST. If the source of the excessive\nerrors are not resolved at the ADD/DROP, dispatch maybe required to verify fibers between the EAST and WEST OADM\nfor 1554.13.\n\n(9) Date Entered / Name :\n06/04/2023 23:51:14 tm1758\n\nLog Text:\nLooking at issue, GCC on each end of ITU, 1554.13. No other alarms on the ring to indicate issue on other ITU's. Pulled \nPM's for each end that has the GCC Fail alarm. UPCLOU17DS01 SLOT 6 PORT 9 OPR: -20.5 dBm ALL PM counts are\nclean. UPCLOU8DS01 SH2 SLOT 7  PORT 9 OPR: -27 dBm There are random UNCORRECTABLE WORDS, but the FEC\nPM's have millions of bit errors. The excessive bit errors and the low optical power level are suspected to be causing the\nGCC fail alarms.\n\n(10) Date Entered / Name :\n05/25/2023 20:35:11 jg357h\n\nLog Text:\nCreated CISCO TAC case number 695599772.\n\n(11) Date Entered / Name :\n05/25/2023 20:04:45\n\nLog Text:\nLooking at the FLR this goes from Node A 911 Grade Lane(UPCLOU8DS01) to Node B 911 Grade Lane(UPCLOU9DS01)\nto 825 Lotus Ave Louisville, KY(UPCLOU7DS01). I was shooting the fiber from Node A(UPCLOU8DS01) to 825 Lotus Ave\nLouisville, KY(UPCLOU7DS01) and isol ated Node B 911 Grade Lane(UPCLOU9DS01). The client saw a hit on the traffic\nfor Node B 911 Grade Lane(UPCLOU9DS01). Verified with client that traffic is restored and released the techs. Will\nengage CISOCO TAC.\n\n(12) Date Entered / Name :\n05/25/2023 19:21:38\n\nLog Text:\nLate entry - verified the GCC channels built on each end also restarted control cards on each, to no avail.\n\n(13) Date Entered / Name :\n05/25/2023 19:15:40\n\nLog Text:\nTech Alain is now at 825 Lotus ave. Engaged tier two - waiting for recommendation.\n\n(14) Date Entered / Name :\n05/25/2023 18:58:07\n\nLog Text:\nHad tech Alain at 200 High Rise to clean fiber at the node and patch panel, no change. Will need to perform OTDR shot.\nTech Alain is dispatching to 825 Lotus Lane to perform OTDR shot from there.\n\n\nPage 3:\n(15) Date Entered / Name :\n05/25/2023 18:53:41\n\nLog Text:\nTechs are onsite - gave lamp test. Verified working on correct nodes. There is another node betweens these\nlocations(UPCLOU17DS01 & UPCLOU8DS01). UPCLOU7DS01 825 Lotus Ave Louisville, KY. Believe we dispatched to\nthe wrong location.\n\n(16) Date Entered / Name :\n05/25/2023 10:29:24\n\nLog Text:\nFrom: vmohanan@ups.com [vmohanan@ups.com] Sent: Thursday, May 25, 2023 10:16 AM To: ALHADAD, SALEH A\n[sa2522@att.com]; HUYNH, KEVIN K [KH9142@att.com]; JEEVAN MUNI CHARAN, M [mj9206@att.com]; CASON, JOHN\nR [jc7599@att.com]; skumar5@ups.com; DAVIS, JEREMIAH  A [jd6129@att.com]; noc@ups.com; UPS@list.att.com Cc:\nUVN Team [dl -uvnteam@att.com]; kleach@ups.com; rsugg@ups.com; chintanshah@ups.com; LUKE, TIM\n[hl3213@att.com]; LOSICH, MARKO [ML679C@att.com] Subject: RE: UPS Ring C - Aots tkt# 319504689 - Maintenance\nWindow Request Thanks Sal, Below is local site contact details. 911 Grade Lane Kimberly Leach (502) 445 -8652) 200\nHigh Rise Dr Raleigh Sugg (502 -224-8725) If you have any issues, Please reach out to our hotline # 502 -916-0685\nThanks, Vel M From: ALHADAD, SALEH A [sa2522@att.com] Sent: Thursday, May 25, 2023 9:17 AM To: Vel Murugan\nMohanan [vmohanan@ups.com]; HUYNH, KEVIN K [KH9142@att.com]; JEEVAN MUNI CHARAN, M [mj9206@att.com];\nCASON, JOHN R [jc7599@att.com]; Sunil Kumar [skumar5@ups.com]; DAVIS, JEREMIA H A [jd6129@att.com]; Upsnoc\nMBX [noc@ups.com]; UPS@list.att.com Cc: UVN Team [dl -uvnteam@att.com]; Kimberly Leach [kleach@ups.com];\nRaleigh Sugg [rsugg@ups.com]; Chintan Shah [chintanshah@ups.com]; LUKE, TIM [hl3213@att.com]; LOSICH, MARKO\n[ML679C@att.com ] Subject: [EXTERNAL] RE: UPS Ring C - Aots tkt# 319504689 - Maintenance Window Request VEL,\nTechs information: Tim Luke phone (502)303 -7878 will be the tech for WP NODE A 911 Grade Lane - Worldport Louisville,\nKY and Alain Sanchez phone (803)998 -7465 will  be the tech for AOP Node A 200 High Rise Dr Louisville, KY. Thank you.\nSaleh Alhadad Sr Specialist -Network Support Customer Service & Operations | Service Assurance & Client Support AT&T\nServices, Inc 754 Peachtree St NE, Room 13D24 Atlanta, GA 30308 USA Desk: 404.898.7063 | Team: 888.397.0747 |\nsa2522@us.att.com\n\n(17) Date Entered / Name :\n05/25/2023 08:26:32 mj9206\n\nLog Text:\nFrom: vmohanan@ups.com [vmohanan@ups.com] Sent: Thursday, May 25, 2023 5:50 PM To: HUYNH, KEVIN K\n[KH9142@att.com]; JEEVAN MUNI CHARAN, M [mj9206@att.com]; CASON, JOHN R [jc7599@att.com];\nskumar5@ups.com; DAVIS, JEREMIAH A [jd6129@att.com]; noc@ups.com; UP S@list.att.com Cc: UVN Team [dl -\nuvnteam@att.com]; kleach@ups.com; rsugg@ups.com; chintanshah@ups.com; LUKE, TIM [hl3213@att.com]; LOSICH,\nMARKO [ML679C@att.com] Subject: RE: UPS Ring C - Aots tkt# 319504689 - Maintenance Window Request Hi Sal, As\ndiscussed , Maintenance window for this activity will be between 5pm 9pm EST today (5/25) for both the sites. Please share\nthe tech details ASAP to arrange the access. Thanks, Vel M\n\n(18) Date Entered / Name :\n05/24/2023 18:22:29\n\nLog Text:\nHad Tim check light coming out of filter, reading -27 dB, and reading at OSP C42 pnl 7 port 2 -0.54 dB\n\n(19) Date Entered / Name :\n05/24/2023 18:05:23\n\nLog Text:\nWill need to duel  dispatch to AOP Node A 200 High Rise Dr Louisville, KY 40213 UPCLOU17DS01 slot 6 port 9 and WP\nNODE A 911 Grade Lane - Worldport Louisville, KY 40213 UPCLOU8DS01 slot 7 port 9 RX -27 dB\n\n\nPage 4:\n(20) Date Entered / Name :\n05/24/2023 18:00:31\n\nLog Text:\nTech Tim,  replaced card slot 7. card failure alarm cleared. GCC Term failure on slot 7 port 9 and GCC Term failure on slot\n6 port 9 at UPCLOU17DS01 UPS 200 HIGH RISE DR / LOUISVILLE KY 40213 / AOP NODE A / FIC: UVN -A /\nLSVLKYEGNA1\n\n(21) Date Entered / Name :\n05/24/2023 10:34:37\n\nLog Text:\nFrom: vmohanan@ups.com [vmohanan@ups.com] Sent: Wednesday, May 24, 2023 9:55 AM To: JEEVAN MUNI\nCHARAN, M [mj9206@att.com]; CASON, JOHN R [jc7599@att.com]; skumar5@ups.com; DAVIS, JEREMIAH A\n[jd6129@att.com]; noc@ups.com; UPS@list.att.com Cc: UVN Team [dl -uvnteam@att.com]; kleach@ups.com;\nrsugg@ups.com; chintanshah@ups.com; LUKE, TIM [hl3213@att.com] Subject: RE: UPS Ring C - Aots tkt# 319504689 -\nMaintenance Window Request Hi Jeevan, Local Site Contact is Kim Leach / 502 -445-8652 Thanks, Vel M\n\n(22) Date Entered / Name :\n05/24/2023 00:16:24\n\nLog Text:\nopened WMS 352310184 for dispatch and requested techs name ASAP\n\n(23) Date Entered / Name :\n05/23/2023 23:06:12\n\nLog Text:\ncustomer gave a window of 5/24 3:30pm -7:30pm ET . customer will need the tech name dispatching for access ASAP\n\n(24) Date Entered / Name :\n05/23/2023 21:28:21\n\nLog Text:\nSubject: UPS Ring C - Aots tkt# 319504689 - Maintenance Window Request AT&T UVN team would like to request a 4 -\nhour maintenance window to replace a failed circuit pack at 911 Grade Ln, Louisville, KY 40213. The protect path of GigE\ncircuit UPCLOU17DS01 -07010601 is currently down due to a card failure. Please contact t he UVN group at 888 -397-0747\nand refer to ticket 319504689 with a maintenance window and access or reply all to this email.\n\n(25) Date Entered / Name :\n05/23/2023 19:39:45\n\nLog Text:\npart was verified on WMS tkt# 352308933 LNS tech Tim Luke (hl3213) verified he has the part.\n\n(26) Date Entered / Name :\n05/23/2023 19:39:01\n\nLog Text:\nCustomer Log @ 05/23/2023 10:19:00 pm for 000000319481071 (This Ticket) FA UV_SERVICES -- by Kevin Huynh\nkh9142 Part failure slot 7 AR -XPE HW part # 800-38430 -01 Serial # CAT2410B0FW CLEI Code: WOOMAS5WAA UPS\n911 GRADE LANE - WORLDPORT NODE A / 1ST FLOOR NODE A / C42 / LOUISVILLE / KENTUCKY / 40213 FIC: C42\n\nPage 5:\n\n(27) Date Entered / Name :\n05/23/2023 19:34:46 UDESKTOP\n\nLog Text:\nAT&T Notifications sent to: EventType: CREATE;Recipient Name: Workgroup UMC_UPA EventType: CREATE;Recipient\nName: Workgroup UMC_UPC"
+                    },
+                    {
+                    "role": "assistant",
+                    "content": "Subject: Update on Your Ticket - 319504689 and Issue\n\nDear Customer,\n\nI hope this message finds you well. I'm writing to provide you with an update on the status of your ticket.\n\nProgress:\n1. Resolution status: The ticket has been closed.\n2. Current Work queue: N/A\n3. Actions Taken: Tim arrived on site and checked the light level at slot 7 port 9. He cleaned fibers at the filter and removed the attenuator on Rx. The current reading is -21.7, which is considered acceptable. Monitoring for pre-FEC bit errors.\n4. Next Steps: The ring needs to be re-balanced for optimal performance.\n\nWe sincerely appreciate your patience and understanding as we work to resolve this matter. Your satisfaction is our priority.\n\nBest regards,\n[Your Name]\n[Your Company]"
+                    },
+                    {
+                    "role": "user",
+                    "content": f"{topic}"    
+                    }
+                ],
+                temperature=0.43,
+                max_tokens=1024,
+                top_p=1,
+                frequency_penalty=0,
+                presence_penalty=0
+                )
+            resultmail = response['choices'][0]['message']['content']
+        elif output_required != "":
+            fullscreen = True
+            fullscreen = False
+
+    except Exception as e:
+            logging.error(f"Some error occurred\n{str(e)} ")
+            response = "Error occured while establishing connection to OpenAI\n1. Check your internet connection\n2. Make sure you entered your API key Correctly.\n3. Wait for some time and try again\n\nSee logs for troubleshooting"
+
+    # end_time = time.time()
+    # total_time = end_time - start_time
+    # try:
+    #     conn = sqlite3.connect('code_ops_analyser.db')
+    #     sql_query = "Insert into doc_generation (dropdown, topic, output, exe_time) Values (?,?,?,?)"
+    #     query_values = (
+    #         output_required,
+    #         topic,
+    #         response,
+    #         total_time
+    #     )
+    #     conn.execute(sql_query,query_values)
+    #     conn.commit()
+    #     conn.close()
+    # except Exception as e:
+    #     logging.error(f"{str(e)}")
+
+    return resultsms,resultmail,fullscreen,""
+
+@app.callback(
+    Output('ticket_summery_save','href'),
+    Input('ticket_summery_save','n_clicks'),
+    Input('ticket_summery_sms_output-box','value'),
+    Input('ticket_summery_mail_output-box','value')
+)
+def send_doc_genearation_report(n_clicks,sms,mail):
+    
+    n_clicks =0
+    if n_clicks is not None or n_clicks > 0:
+        sms = sms.encode("utf-8")
+        mail = mail.encode("utf-8")
+        b64_sms = base64.b64encode(sms).decode()
+        b64_mail = base64.b64encode(mail).decode()
+        href = f"data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,{b64_sms},{b64_mail}"
+        return href
+
+
+
+
+
+
+
+
+
+#------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 # %%
 # Define options for the dropdown for fault analysis 
 #Adding more option here will require adding key values for log dictionary below
@@ -1418,11 +1644,6 @@ def fill_prompt(systems_involved_value):
 ##
 ## Called when Preset dropdown is selected
 ##
-def parse_contents(contents):
-    pytesseract.pytesseract.tesseract_cmd = r'./Tesseract-OCR/tesseract.exe'
-    image = Image.open(io.BytesIO(base64.b64decode(contents.split(',')[1])))
-    text = pytesseract.image_to_string(image)
-    return text,None
 
 @app.callback(
         Output("fault_analysis-ocr-text","value"),
@@ -3482,6 +3703,8 @@ def display_page(pathname):
         return wt_stats_page
     elif pathname == '/fault-analysis-new':
         return fault_analysis_new_layout
+    elif pathname == '/ticket_summary':
+        return ticket_summery_layout
     elif pathname == '/dialoguediagnostics':
         return dialogue_diagnostic_layout
     elif pathname == '/testgenius':

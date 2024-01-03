@@ -14,14 +14,14 @@
 
 # %%
 # !pip install dash --upgrade
-# !pip install dash-bootstrap-components
+# !pip install dash-bootstrap-components 
 # !pip install openai
 # !pip install python-docx
 # !pip install pandas
 # !pip uninstall dash jupyter_dash
 # !pip install jupyter-dash
 # !pip install dash --upgrade
-# !pip install dash-bootstrap-components
+# !pip install dash-bootstrap-components 
 # !pip install flask_mail
 # !pip install flask flask-wtf flask-bootstrap email-validator
 # !pip install pytesseract
@@ -241,6 +241,9 @@ def run_preset_14(query):
 )
   return response.choices[0].text
 
+
+
+
 def get_sentiments_from_openai(textarea):
     response = openai.Completion.create(
         model="text-davinci-003",
@@ -309,247 +312,6 @@ def get_functional_test_response(textarea):
     print(metadata.choices[0].text)
     print(test_data.choices[0].text)
     return metadata.choices[0].text, test_result_action, test_result_expectation, test_data.choices[0].text
-
-# i have added a function for facebook 23-11-2023
-
-def get_functional_test_response_facebook(textarea):
-    print("in function")
-    metadata = openai.ChatCompletion.create(
-    model="gpt-3.5-turbo-16k",
-    messages=[
-        {
-        "role": "system",
-        "content": "You are a system. Your task is to generate functional test metadata for cross-application verifications involving the Facebook app. Only generate information at the specified points:\n1.Test Case Name:\n2.Test Objective:\n3.Preconditions:\n4.Inputs:"
-        },
-        {
-        "role": "user",
-        "content": "Create and Verify Check-in Post with Friends Audienc"
-        },
-        {
-        "role": "assistant",
-        "content": "1. Test Case Name: Create and Verify Check-in Post with Friends Audience\n2. Test Objective: To ensure that users can successfully create a check-in post on Facebook with the audience set to \"Friends\".\n3. Preconditions:\n   - User must have a Facebook account.\n   - User must have the Facebook app installed on their device.\n   - User must have friends added on Facebook.\n4. Inputs:\n   - User's current location.\n   - Text for the check-in post.\n   - Audience selection set to \"Friends\"."
-        },
-        {
-        "role": "user",
-        "content": "give me the test case for story checking in facebook"
-        },
-        {
-        "role": "assistant",
-        "content": "1. Test Case Name: Create and Verify Story Check-in on Facebook\n2. Test Objective: To ensure that users can successfully create a story check-in on Facebook.\n3. Preconditions:\n   - User must have a Facebook account.\n   - User must have the Facebook app installed on their device.\n   - User must have location services enabled on their device.\n4. Inputs:\n   - User's current location.\n   - Text or caption for the story check-in.\n   - Optional: Tag friends or add stickers to the story check-in.\n   - Optional: Add a photo or video to the story check-in."
-        },
-        {
-        "role": "user",
-        "content": f"{textarea}"
-        }
-    ],
-    temperature=0.22,
-    max_tokens=2048,
-    top_p=1,
-    frequency_penalty=0,
-    presence_penalty=0
-    )
-    print("metadata calculated")
-
-    test_result = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo-16k",
-        messages=[
-            {
-            "role": "system",
-            "content": "You are a system responsible for testing cross-application functionalities within the facebook app. Your task is to generate detailed test steps and expected results(expexted result laways in paragraph) for various scenarios involving facebook. "
-            },
-            {
-            "role": "user",
-            "content": "Create and Verify Check-in Post with Friends Audience and Tagged \nFriend"
-            },
-            {
-            "role": "assistant",
-            "content": "Test Steps: \n1. Launch the Facebook app on an iOS device.\n2. Log in with valid credentials.\n3. Navigate to the check-in feature or search bar.\n4. Enter the name of a specific location/restaurant.\n5. Select the desired location from the search results.\n6. Click on the \"Check-in\" button or similar option.\n7. Verify that the post audience is set as \"Friends\" by default.\n8. Set the post audience as \"Friends\" if not already selected.\n9. Add any additional content or tags if required.\n10. Tag a specific friend by typing their name preceded by the \"@\" symbol.\n11. Click on the \"Post\" button to create the check-in post.\n12. Verify that the check-in post is successfully created.\n13. Log out of the current user account.\n14. Log in with a Facebook account of the tagged friend on the Android App.\n15. Verify that the check-in post is also successfully created in tagged friend’s feeds.\n15. Navigate to the external user's profile or timeline.\n16. Verify that the check-in post is visible on the profile or timeline.\n18. Verify that the location displayed in the check-in post matches the selected location.\n20. Verify that only friends can be tagged.\n21. Log in with a different Facebook account on the web portal that is not friends with \nthe external user who created the check-in post.\n22. Navigate to the external user's profile or timeline.\n23. Verify that the check-in post is not visible on the profile or timeline.\n24. Verify that the tagged friend is not tagged in the check-in post.\nRepeat the above Cross-Application Verifications for the following workflows:\n- Android workflow with iOS App\n- Android workflow with Web\n- Web workflow with iOS App\n- Web workflow with Android App\nExpected Result: \nThe check-in post created using the iOS workflow is successfully visible and accurately \ndisplayed in the Android App and from the web for all the specified cross-application \nverifications. The post audience remains as \"Friends\" by default, and only friends of the \nexternal user can see the check-in post. The location displayed in the check-in post \nmatches the selected location. The tagged friend is correctly tagged in the check-in \npost and is visible to the tagged friend on their profile or timeline. The check-in post is \nalso successfully created in friends' feeds who were tagged. Only friends can be tagged \nin the check-in post, and it is not visible to non-friends"
-            },
-            {
-            "role": "user",
-            "content": " Previously checked in or tagged locations surfaces in the check-in \nworkflow if the Location was turned OFF for the App."
-            },
-            {
-            "role": "assistant",
-            "content": "Test Steps:\n1. Launch the Facebook app on an iOS device.\n2. Log in with valid credentials.\n3. Go to the device settings.\n4. Locate the Facebook app settings.\n5. Disable the location permission for the Facebook app.\n6. Return to the Facebook app.\n7. Navigate to the check-in feature or search bar.\n8. Enter the name of a specific location/restaurant.\n9. Select the desired location from the search results.\n10. Verify that previously checked-in or tagged locations are not surfaced in the check-in workflow.\n11. Enable the location permission for the Facebook app in the device settings.\n12. Return to the Facebook app.\n13. Navigate to the check-in feature or search bar.\n14. Enter the name of a specific location/restaurant.\n15. Select the desired location from the search results.\n16. Verify that previously checked-in or tagged locations are now surfaced in the check-in workflow.\n17. Disable the location permission for the Facebook app again in the device settings.\n18. Return to the Facebook app.\n19. Navigate to the check-in feature or search bar.\n20. Enter the name of a specific location/restaurant.\n21. Select the desired location from the search results.\n22. Verify that previously checked-in or tagged locations are not surfaced in the check-in workflow.\n23. Enable the location permission for the Facebook app in the device settings.\n24. Return to the Facebook app.\n25. Navigate to the check-in feature or search bar.\n26. Enter the name of a specific location/restaurant.\n27. Select the desired location from the search results.\n28. Verify that previously checked-in or tagged locations are now surfaced in the check-in workflow.\n\nExpected Result:\nWhen the location permission for the Facebook app is turned off, previously checked-in or tagged locations should not be surfaced in the check-in workflow. However, when the location permission is turned on, previously checked-in or tagged locations should be surfaced in the check-in workflow. Disabling and enabling the location permission should consistently affect the availability of previously checked-in or tagged locations in the check-in workflow."
-            },
-            {
-            "role": "user",
-            "content": f"{textarea}"
-            }
-        ],
-        temperature=0.11,
-        max_tokens=5460,
-        top_p=1,
-        frequency_penalty=0,
-        presence_penalty=0
-    )
-    print("test_result calculated")
-    
-    test_data = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo-16k",
-        messages=[
-            {
-            "role": "system",
-            "content": "You are a system tasked with generating functional test data for cross-application verifications involving the Facebook app on iOS, Android, and the web. If you received any prompts take the test case from given prompt and generate test data only for the following points:\n\nUser Details:\na. Username:\nb. Password:\n\nPost Details:\na. Post Type:\nb. Location/Restaurant:\nc. Audience:\nd. Post Content:\n\nPlatforms:\"\n"
-            },
-            {
-            "role": "user",
-            "content": "Create and Verify Check-in Post with Friends Audienc"
-            },
-            {
-            "role": "assistant",
-            "content": "1. User Details:\n  a. username: testuser123\n  b. password: testpass123\n\n2. Post Details:\n  a. Post type: Check-in\n  b. Location/Restaurant: \"The Best Cafe\"\n  c. Audience: Friends\n  d. Post Content: \"Having a great time at The Best Cafe with friends!\"\n\n3. Platforms:\n  - iOS app\n  - Android app\n  - Web app"
-            },
-            {
-            "role": "user",
-            "content": "give me the test case for story checking in facebook"
-            },
-            {
-            "role": "assistant",
-            "content": "1. User Details:\n  a. username: testuser456\n  b. password: testpass456\n\n2. Post Details:\n  a. Post type: Story\n  b. Location/Restaurant: \"The Cozy Restaurant\"\n  c. Audience: Public\n  d. Post Content: \"Checked in at The Cozy Restaurant, enjoying a delicious meal!\"\n\n3. Platforms:\n  - iOS app\n  - Android app\n  - Web app"
-            },
-            {
-            "role": "user",
-            "content": f"{textarea}"
-            }
-        ],
-        temperature=0.22,
-        max_tokens=2048,
-        top_p=1,
-        frequency_penalty=0,
-        presence_penalty=0
-        )
-    print("test_data calculated")
-    metadata = metadata['choices'][0]['message']['content']
-    test_result = test_result['choices'][0]['message']['content']
-    test_data = test_data['choices'][0]['message']['content']
-    
-    print(metadata)
-    print(test_result)
-    print(test_data)
-    return metadata,test_data,test_result
-
-def get_functional_test_response_instagram(textarea):
-    print("in function")
-    metadata = openai.ChatCompletion.create(
-    model="gpt-3.5-turbo-16k",
-    messages=[
-    {
-      "role": "system",
-      "content": "You are a system. Your task is to generate functional test metadata for cross-application verifications involving the Instagram app. Only generate information at the specified points:\n1.Test Case Name:\n2.Test Objective:\n3.Preconditions:\n4.Inputs:"
-    },
-    {
-      "role": "user",
-      "content": "Create and Verify Check-in Post with Friends Audienc"
-    },
-    {
-      "role": "assistant",
-      "content": "1. Test Case Name: Create and Verify Check-in Post with Friends Audience\n2. Test Objective: To ensure that users can successfully create a check-in post on Instagram with the audience set to friends only.\n3. Preconditions:\n   - User must have a valid Instagram account.\n   - User must have friends added on their Instagram account.\n4. Inputs:\n   - Location: [Specify the location where the check-in post will be created]\n   - Caption: [Specify the caption for the check-in post]\n   - Audience: Friends Only"
-    },
-    {
-      "role": "user",
-      "content": "give me the  test case for story checking in istagram"
-    },
-    {
-      "role": "assistant",
-      "content": "1. Test Case Name: Verify Story Check-in on Instagram\n2. Test Objective: To ensure that users can successfully check-in to a location and share it as a story on Instagram.\n3. Preconditions:\n   - User must have a valid Instagram account.\n   - User must have location services enabled on their device.\n4. Inputs:\n   - Location: [Specify the location where the check-in will be made]\n   - Caption: [Specify the caption for the story check-in]\n   - Media: [Specify any media (photo or video) to be attached to the story check-in]"
-    },
-    {
-      "role": "user",
-       "content": f"{textarea}"
-    }
-    ],
-    temperature=0.22,
-    max_tokens=2048,
-    top_p=1,
-    frequency_penalty=0,
-    presence_penalty=0
-    )
-    print("meatadata calculated")
-    time.sleep(30)
-
-    test_result = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo-16k",
-        messages=[
-            {
-            "role": "system",
-            "content": "You are a system responsible for testing cross-application functionalities within the Instagram app. Your task is to generate all the test steps and expected results( expected result always in paragraph) for various scenarios involving Instagram. "
-            },
-            {
-            "role": "user",
-            "content": "Create and Verify Check-in Post with Friends Audience and Tagged \nFriend"
-            },
-            {
-            "role": "assistant",
-            "content": "Certainly! Here are the additional cross-application verifications and modified tagging instructions:\n\n**Test Steps:**\n1. Launch the Instagram app.\n2. Log in to your account.\n3. Tap on the \"+\" button at the bottom center of the screen to create a new post.\n4. Tap on the \"Check-in\" option from the available post types.\n5. Allow Instagram to access your location if prompted.\n6. Select the location you want to check-in to by searching or browsing through the available options.\n7. Tap on the \"Next\" button at the top right corner of the screen.\n8. Write a caption for your check-in post in the \"Write a caption...\" field.\n9. Tap on the \"Tag People\" option below the caption field, and use the \"@\" symbol to tag a friend.\n10. Search and select the friend you want to tag in the check-in post.\n11. Tap on the \"Done\" button at the top right corner of the screen.\n12. Tap on the \"Audience\" option below the caption field.\n13. Select the \"Friends\" option from the available audience options.\n14. Tap on the \"Share\" button at the top right corner of the screen.\n15. Wait for the check-in post to be uploaded and published.\n16. Verify that the check-in post is visible on your profile.\n17. Verify that the check-in post is visible in your friend's feed.\n18. Verify that the tagged friend is mentioned in the check-in post.\n19. Verify that the check-in post is visible to your friends only and not to the public.\n\nRepeat the above Cross-Application Verifications for the following workflows:**\n- Android workflow with iOS App\n- Android workflow with Web\n- Web workflow with iOS App\n- Web workflow with Android App\n\n**Expected Result:**\nThe check-in post created using the provided steps is successfully visible on your Instagram profile. It is also visible in your friend's feed, and the tagged friend is correctly mentioned in the check-in post. The post is set to be visible to your friends only, ensuring it is not accessible to the public. The location and caption are accurately displayed in cross-application verifications, confirming the consistent functionality across different platforms."
-            },
-            {
-            "role": "user",
-            "content": " Previously checked in or tagged locations surfaces in the check-in \nworkflow if the Location was turned OFF for the App"
-            },
-            {
-            "role": "assistant",
-            "content": "**Test Steps:**\n1. Launch the Instagram app.\n2. Log in to your account.\n3. Tap on the \"+\" button at the bottom center of the screen to create a new post.\n4. Tap on the \"Check-in\" option from the available post types.\n5. If prompted, allow Instagram to access your location.\n6. If the location was previously turned off for the app, ensure that it is still turned off.\n7. Select the location you want to check-in to by searching or browsing through the available options.\n8. Tap on the \"Next\" button at the top right corner of the screen.\n9. Write a caption for your check-in post in the \"Write a caption...\" field.\n10. Tap on the \"Tag People\" option below the caption field, and use the \"@\" symbol to tag a friend.\n11. Search and select the friend you want to tag in the check-in post.\n12. Tap on the \"Done\" button at the top right corner of the screen.\n13. Tap on the \"Audience\" option below the caption field.\n14. Select the \"Friends\" option from the available audience options.\n15. Tap on the \"Share\" button at the top right corner of the screen.\n16. Wait for the check-in post to be uploaded and published.\n17. Verify that the check-in post is visible on your profile.\n18. Verify that the check-in post is visible in your friend's feed.\n19. Verify that the tagged friend is mentioned in the check-in post.\n20. Verify that the check-in post is visible to your friends only and not to the public.\n21. Repeat the above steps with the location turned on for the app.\n\n**Expected Result:**\nWhen the location is turned off for the Instagram app, the previously checked-in or tagged locations should not surface in the check-in workflow. The user should be able to manually search and select a location for the check-in post. The check-in post should still be visible on the user's profile, in their friend's feed, and the tagged friend should be mentioned in the post. The post should be set to be visible to friends only. When the location is turned on for the app, the previously checked-in or tagged locations should be available for selection in the check-in workflow."
-            },
-            {
-            "role": "user",
-            "content": f"{textarea}"
-        }
-        ],
-        temperature=0.13,
-        max_tokens=5119,
-        top_p=1,
-        frequency_penalty=0,
-        presence_penalty=0
-    )
-    print("test_result calculated")
-    time.sleep(30)
-
-    test_data = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo-16k",
-         messages=[
-            {
-            "role": "system",
-            "content": "You are a system tasked with generating functional test data for cross-application verifications involving the instagram app on iOS, Android, and the web. If you received any prompts take the test case from given prompt and generate test data only for the following points:\n\nUser Details:\na. Username:\nb. Password:\n\nPost Details:\na. Post Type:\nb. Location/Restaurant:\nc. Audience:\nd. Post Content:\n\nPlatforms:\"\n"
-            },
-            {
-            "role": "user",
-            "content": "Create and Verify Check-in Post with Friends Audienc"
-            },
-            {
-            "role": "assistant",
-            "content": "User Details:\na. Username: testuser\nb. Password: Test1234\n\nPost Details:\na. Post Type: Check-in\nb. Location/Restaurant: Starbucks\nc. Audience: Friends\nd. Post Content: \"Having a great time at Starbucks with friends!\"\n\nPlatforms:\n- iOS\n- Android\n- Web"
-            },
-            {
-            "role": "user",
-            "content": "give me the  test case for story checking in istagram"
-            },
-            {
-            "role": "assistant",
-            "content": "User Details:\na. Username: testuser\nb. Password: Test1234\n\nPost Details:\na. Post Type: Story\nb. Location/Restaurant: Starbucks\nc. Audience: Public\nd. Post Content: \"Checking in at Starbucks for a quick coffee break!\"\n\nPlatforms:\n- iOS\n- Android\n- Web"
-            },
-            {
-                "role": "user",
-                "content": f"{textarea}"
-            }
-        ],
-        temperature=0.22,
-        max_tokens=2048,
-        top_p=1,
-        frequency_penalty=0,
-        presence_penalty=0
-        )
-    print("test_data calculated")
-    metadata = metadata['choices'][0]['message']['content']
-    test_result = test_result['choices'][0]['message']['content']
-    test_data = test_data['choices'][0]['message']['content']
-    
-    print(metadata)
-    print(test_result)
-    print(test_data)
-    return metadata,test_data,test_result
-
 
 
 def get_test_case_from_openai(code_input, action_selected, code_language):
@@ -633,11 +395,7 @@ app.layout = html.Div([
 ])
 
 app.title = "Synapt-GDK"
-#openai.api_key = "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"
-with open('config.json','r') as config:
-    file = json.load(config)
-    openai.api_key = file['openai_key']
-    
+openai.api_key = "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"
 user_email_address = ""
 user_email_password = ""
 CLIENT_SECRET_FILE = 'SecretKey.json'
@@ -1131,8 +889,6 @@ def show_input(n_clicks, new_api_key, new_email_address, new_user_password):
     
     # return "Your API key- "+mask_api_key(user_apikey), "Email id "+ user_email_status, user_password_status,'','',''
 
-
-
 # %% [markdown]
 # **FAULT ANALYSIS PAGE LAYOUT AND FUNCTIONALITY**
 new_systems_involved = [
@@ -1351,12 +1107,11 @@ fault_analysis_page = html.Div([
         dbc.Col([
             html.H3("2. 📷Image Text", style={'font-size': '30px'}),
             dbc.Textarea(id='fault_analysis-ocr-text', placeholder='Nothing Uploaded...', style={'height': '150px', 'resize': 'none','background-color': '#444444', 'color': 'white'})
-        ], width=6),
-        #made a chnge by rishu 23-11-2023
-        # dbc.Col([
-        #     html.H3("3. 💭Prompt Selected", style={'font-size': '30px'}),
-        #     dbc.Textarea(id='fault-analysis-prompt-box',placeholder='Prompt appears here as you select...', style={'height': '150px', 'resize': 'none','word-wrap':'break-word', 'overflow-wrap':'break-word','background-color': '#444444', 'color': 'white'},readOnly=True)
-        # ], width=3),
+        ], width=3),
+        dbc.Col([
+            html.H3("3. 💭Prompt Selected", style={'font-size': '30px'}),
+            dbc.Textarea(id='fault-analysis-prompt-box',placeholder='Prompt appears here as you select...', style={'height': '150px', 'resize': 'none','word-wrap':'break-word', 'overflow-wrap':'break-word','background-color': '#444444', 'color': 'white'},readOnly=True)
+        ], width=3),
         #placeholder='Prompt appears here as you select...'
         dbc.Col([
             dbc.Button([html.I(' Submit',className='fas fa-paper-plane')], color='primary', id = "fault-analysis-submit", style={'justify-content': 'center','width':'120px','margin': '47px 0px 0px 0px'}),
@@ -1366,14 +1121,6 @@ fault_analysis_page = html.Div([
     ], style={'margin': '20px 0px'}),
     # html.Div(id = 'fault-analysis-email-recipients',children=[]),
 
-    #made a change by rishu 23-11-2023
-    dbc.Row([
-    dbc.Col([
-            html.H3("3. 💭Prompt Selected", style={'font-size': '30px'},hidden=True),
-            dbc.Textarea(id='fault-analysis-prompt-box',placeholder='Prompt appears here as you select...', style={'height': '150px', 'resize': 'none','word-wrap':'break-word', 'overflow-wrap':'break-word','background-color': '#444444', 'color': 'white'},readOnly=True, hidden=True)
-        ], width=3),
-    ], style={'margin': '20px 0px'}),
-    
     dbc.Row([
         dbc.Col([
             html.H3("Result:", style={'font-size': '30px'}),
@@ -2122,10 +1869,7 @@ def generate_code_generation_report(preset, language, textarea, result, n_clicks
 
 test_genius_dropdown_option = [
     {'label':'Generate unit test cases','value':'Generate unit test cases'},
-    {'label':'Generate functional test cases','value':'Generate functional test cases'},
-    # made changse by rishu (23-11-2023)
-    {'label':'Generate functional test cases for facebook','value':'Generate functional test cases for facebook'},
-    {'label':'Generate functional test cases for instagram','value':'Generate functional test cases for instagram'}
+    {'label':'Generate functional test cases','value':'Generate functional test cases'}
 ]
 
 test_genius_layout = html.Div([
@@ -2166,7 +1910,7 @@ test_genius_layout = html.Div([
     ], type='circle', fullscreen=False),
     dbc.Row([
         dbc.Col([
-            html.H3("Test Metadata", style={'font-size': '30px'}),
+            html.H3("Test Steps", style={'font-size': '30px'}),
             dbc.Textarea(id='test-genius-test-steps',placeholder='Nothing generated yet...', style={'height': '500px', 'resize': 'none', 'word-wrap':'break-word', 'overflow-wrap':'break-word','background-color': '#444444', 'color': 'white'},readOnly = True)
         ], width=4),
         dbc.Col([
@@ -2174,7 +1918,7 @@ test_genius_layout = html.Div([
             dbc.Textarea(id='test-genius-test-data',placeholder='Nothing generated yet...', style={'height': '500px', 'resize': 'none', 'word-wrap':'break-word', 'overflow-wrap':'break-word','background-color': '#444444', 'color': 'white'},readOnly = True)
         ], width=4),
         dbc.Col([
-            html.H3("Test Steps and Results", style = {'font-size':'30px'}),
+            html.H3("Test Results", style = {'font-size':'30px'}),
             dbc.Textarea(id='test-genius-test-results',placeholder='Nothing generated yet...', style={'height': '500px', 'resize': 'none', 'word-wrap':'break-word', 'overflow-wrap':'break-word','background-color': '#444444', 'color': 'white'},readOnly = True)
         ], width=4),
     ], style={'margin': '20px 0px'}),
@@ -2241,29 +1985,6 @@ def generate_test_genius_output(n_clicks, code_input, action_selected, code_lang
             test_result = ""
         fullscreen = False
         return test_data_content2.strip(),test_data.strip(),test_result.strip()+"\nFinal Results-\n"+test_data_content1, False, ''
-    # i have added action 23-11-2023
-    if action_selected == 'Generate functional test cases for facebook':
-        fullscreen = True
-        try:
-            print("function call for facebook")
-            metadata, test_data, test_result = get_functional_test_response_facebook(code_input)
-        except Exception as e:
-            metadata = "Some Error Occured. Please try after some time"
-            test_data = ""
-            test_result = ""
-        fullscreen = False
-        return metadata.strip(),test_data.strip(),test_result.strip(), False, ''
-    if action_selected == 'Generate functional test cases for instagram':
-        fullscreen = True
-        try:
-            print("function call for instagram")
-            metadata, test_data, test_result = get_functional_test_response_instagram(code_input)
-        except Exception as e:
-            metadata = "Some Error Occured. Please try after some time"
-            test_data = ""
-            test_result = ""
-        fullscreen = False
-        return metadata.strip(),test_data.strip(),test_result.strip(), False, ''
     else:
         return "","","", False, ""
 
@@ -2927,7 +2648,7 @@ def send_rca_email(n_clicks, email_failed, email_sent, input, analysis, classifi
         return False, True
     except Exception as e:
         logging.error(f'str{e}')
-        return True,False
+        return True,False       
 ## TS Generator
 
 ts_generator_layout = html.Div([
