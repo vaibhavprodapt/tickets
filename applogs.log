@@ -11218,3 +11218,46 @@ INFO:werkzeug:127.0.0.1 - - [22/Dec/2023 12:21:30] "POST /_dash-update-component
 INFO:werkzeug:127.0.0.1 - - [22/Dec/2023 12:21:30] "POST /_dash-update-component HTTP/1.1" 200 -
 INFO:werkzeug:127.0.0.1 - - [22/Dec/2023 12:21:34] "POST /_dash-update-component HTTP/1.1" 200 -
 INFO:werkzeug:127.0.0.1 - - [22/Dec/2023 12:21:34] "POST /_dash-update-component HTTP/1.1" 200 -
+INFO:dash.dash:Dash is running on http://127.0.0.1:8005/
+
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:8005
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:werkzeug:127.0.0.1 - - [03/Jan/2024 22:44:16] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [03/Jan/2024 22:44:17] "GET /_dash-component-suites/dash/deps/react@16.v2_14_2m1701430386.14.0.min.js HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [03/Jan/2024 22:44:17] "GET /_dash-component-suites/dash/deps/polyfill@7.v2_14_2m1701430386.12.1.min.js HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [03/Jan/2024 22:44:17] "GET /_dash-component-suites/dash/deps/prop-types@15.v2_14_2m1701430386.8.1.min.js HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [03/Jan/2024 22:44:17] "GET /_dash-component-suites/dash/deps/react-dom@16.v2_14_2m1701430386.14.0.min.js HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [03/Jan/2024 22:44:17] "GET /_dash-component-suites/dash/dash-renderer/build/dash_renderer.v2_14_2m1701430386.min.js HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [03/Jan/2024 22:44:17] "GET /_dash-component-suites/dash_bootstrap_components/_components/dash_bootstrap_components.v1_5_0m1701431456.min.js HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [03/Jan/2024 22:44:17] "GET /_dash-component-suites/dash/dcc/dash_core_components-shared.v2_12_1m1701430386.js HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [03/Jan/2024 22:44:17] "GET /_dash-component-suites/dash/dcc/dash_core_components.v2_12_1m1701430386.js HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [03/Jan/2024 22:44:17] "GET /_dash-component-suites/dash/html/dash_html_components.v2_0_15m1701430386.min.js HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [03/Jan/2024 22:44:17] "GET /_dash-component-suites/dash/dash_table/bundle.v5_2_8m1701430386.js HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [03/Jan/2024 22:44:18] "GET /_dash-layout HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [03/Jan/2024 22:44:18] "GET /_dash-dependencies HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [03/Jan/2024 22:44:19] "GET /_favicon.ico?v=2.14.2 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [03/Jan/2024 22:44:19] "POST /_dash-update-component HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [03/Jan/2024 22:44:19] "[33mGET /assets/Prodapt-Logo.png HTTP/1.1[0m" 404 -
+INFO:werkzeug:127.0.0.1 - - [03/Jan/2024 22:46:46] "POST /_dash-update-component HTTP/1.1" 200 -
+ERROR:Code_Ops_Analyserv15:Exception on /_dash-update-component [POST]
+Traceback (most recent call last):
+  File "C:\Users\vaibhav.k\AppData\Local\Programs\Python\Python310\lib\site-packages\flask\app.py", line 1455, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\vaibhav.k\AppData\Local\Programs\Python\Python310\lib\site-packages\flask\app.py", line 869, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\vaibhav.k\AppData\Local\Programs\Python\Python310\lib\site-packages\flask\app.py", line 867, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\vaibhav.k\AppData\Local\Programs\Python\Python310\lib\site-packages\flask\app.py", line 852, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+  File "C:\Users\vaibhav.k\AppData\Local\Programs\Python\Python310\lib\site-packages\dash\dash.py", line 1310, in dispatch
+    ctx.run(
+  File "C:\Users\vaibhav.k\AppData\Local\Programs\Python\Python310\lib\site-packages\dash\_callback.py", line 442, in add_context
+    output_value = func(*func_args, **func_kwargs)  # %% callback invoked %%
+TypeError: generate_doc_generation_output() missing 3 required positional arguments: 'topic', 'output_required', and 'fullscreen'
+INFO:werkzeug:127.0.0.1 - - [03/Jan/2024 22:46:47] "[35m[1mPOST /_dash-update-component HTTP/1.1[0m" 500 -
+INFO:werkzeug:127.0.0.1 - - [03/Jan/2024 22:46:47] "POST /_dash-update-component HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [03/Jan/2024 22:46:47] "POST /_dash-update-component HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [03/Jan/2024 22:46:47] "GET /_dash-component-suites/dash/dcc/async-upload.js HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [03/Jan/2024 22:48:03] "POST /_dash-update-component HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [03/Jan/2024 22:48:04] "POST /_dash-update-component HTTP/1.1" 200 -
